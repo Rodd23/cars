@@ -8,7 +8,7 @@ Este backend é uma API REST em TypeScript usando Fastify, Drizzle ORM em Postgr
 
 - Node.js + TypeScript (ESM)
 - Fastify
-- `@fastify/cors` (CORS habilitado para qualquer origem em desenvolvimento/uso flexível)
+- `@fastify/cors` (somente as origens listadas em `CORS_ORIGINS`)
 - Drizzle ORM
 - PostgreSQL (`pg`)
 - Zod para validação de payloads
@@ -23,10 +23,16 @@ backend/
   package.json
   tsconfig.json
   drizzle.config.ts
+  .env.example          # modelo versionado, sem segredos
+  .env                  # local, ignorado pelo Git
+  tests/
+    catalog.test.ts
+    cors.test.ts
   src/
     app.ts
     server.ts
     config/
+      cors.ts
       env.ts
     db/
       client.ts
@@ -41,6 +47,7 @@ backend/
         cars.routes.ts
         cars.schema.ts
         cars.service.ts
+        catalog/        # GET /cars e GET /cars/:id
         search/
           ai-search-agent.service.ts
           search-query-builder.ts
@@ -52,6 +59,8 @@ Define dependências e scripts:
 
 - `dev`: servidor em modo watch via `tsx watch src/server.ts`
 - `build`: compilação TypeScript com `tsc -p tsconfig.json`
+- `typecheck`: verificação de tipos sem emissão
+- `test`: testes do catálogo e do CORS com `node:test`, sem banco nem OpenAI
 
 ### 3.2 `tsconfig.json`
 
@@ -60,8 +69,9 @@ Configuração do compilador TypeScript para saída compatível com ESM.
 ## 4. Arquitetura do backend
 
 - `src/server.ts`: inicializa o app com `buildApp()` e faz `listen` em `env.PORT` no host `0.0.0.0`.
-- `src/app.ts`: instancia Fastify com logger, registra CORS, rota de teste e as rotas do módulo `cars`.
+- `src/app.ts`: instancia Fastify com logger, registra CORS, `GET /health` e as rotas do módulo `cars`.
 - `src/config/env.ts`: valida variáveis de ambiente com Zod.
+- `src/config/cors.ts`: valida `CORS_ORIGINS` e monta as opções do `@fastify/cors`.
 - `src/db/client.ts`: pool PostgreSQL + Drizzle.
 - `src/modules/cars`: domínio de carros (CRUD parcial + busca).
 
@@ -151,14 +161,17 @@ A pasta `src/db/migrations/` versiona alterações de schema (detalhes dependem 
 | `DATABASE_URL`  | Connection string PostgreSQL                   |
 | `OPENAI_API_KEY`| Chave da API OpenAI                            |
 | `OPENAI_MODEL`  | Identificador do modelo (ex.: compatível com chat completions + tools) |
+| `CORS_ORIGINS`  | Origens permitidas, separadas por vírgula, sem caminho ou barra final. Vazio fora de produção usa `http://localhost:5173`; obrigatório em `production` |
 
-Definir no ambiente ou em arquivo `.env`.
+Copie `.env.example` para `.env` e preencha os valores, ou defina-os no ambiente.
 
 ## 10. Rotas públicas do backend
 
 | Método | Rota            | Descrição |
 |--------|-----------------|-----------|
-| `GET`  | `/teste`        | Sanity check: retorna status e mensagem fixa. |
+| `GET`  | `/health`       | Liveness: retorna `{ "status": "ok" }`; não verifica banco nem OpenAI. |
+| `GET`  | `/cars`         | Listagem paginada com filtros de marca, modelo e versão. |
+| `GET`  | `/cars/:id`     | Detalhes de um veículo (400/404/500 com erros seguros). |
 | `POST` | `/cars`         | Cria um carro; corpo conforme `createCarSchema`. |
 | `POST` | `/cars/search`  | Busca no catálogo a partir de texto livre; usa OpenAI + consulta SQL com filtros opcionais. |
 
@@ -166,7 +179,7 @@ Todas as rotas de carros são registradas no prefixo raiz da aplicação Fastify
 
 ## 11. Observações gerais
 
-- CORS está registrado com `origin: true` (reflete a origem da requisição), útil para frontends em outro host/porta durante o desenvolvimento.
+- CORS aceita somente as origens de `CORS_ORIGINS`; outras origens não recebem cabeçalhos CORS. CORS não substitui autenticação.
 - A busca depende de `OPENAI_API_KEY` e `OPENAI_MODEL` válidos em tempo de execução.
 - Arquitetura em camadas mantém testabilidade; o agente de IA está isolado em `search/`.
 - Tratamento de erros no controller segue o padrão try/catch com distinção básica de Zod vs erro genérico.
@@ -174,8 +187,8 @@ Todas as rotas de carros são registradas no prefixo raiz da aplicação Fastify
 ## 12. Possíveis melhorias
 
 - Alinhar capacidades da tool OpenAI com o query builder (ano, faixa de ano, quilometragem) e estender `SearchFilters`.
-- Endpoints CRUD adicionais: `GET /cars`, `GET /cars/:id`, `PUT/PATCH /cars/:id`, `DELETE /cars/:id`.
-- Testes unitários e de integração (rotas, repositório, agente com mocks).
+- Endpoints de edição e exclusão: `PUT/PATCH /cars/:id`, `DELETE /cars/:id`.
+- Testes de integração (repositório em PostgreSQL isolado, agente com mocks, regressão dos POST).
 - Plugin centralizado de erros Fastify e tipagem mais estrita das respostas de erro.
-- Paginação e ordenação em listagens e na busca.
+- Paginação na busca por IA.
 - Rate limiting e observabilidade (métricas/tracing) nas chamadas à OpenAI.

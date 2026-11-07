@@ -1,5 +1,7 @@
 import Fastify from "fastify";
 import cors from "@fastify/cors";
+import { buildCorsOptions } from "./config/cors.js";
+import { env } from "./config/env.js";
 import { carsRoutes } from "./modules/cars/cars.routes.js";
 
 export async function buildApp() {
@@ -7,12 +9,10 @@ export async function buildApp() {
 		logger: true,
 	});
 
-	await app.register(cors, { origin: true });
+	await app.register(cors, buildCorsOptions(env.CORS_ORIGINS));
 
-	app.get("/teste", async () => ({
-		status: true,
-		message: "FUNCIONOU",
-	}));
+	// Liveness only: does not check PostgreSQL or OpenAI.
+	app.get("/health", async () => ({ status: "ok" }));
 
 	app.register(carsRoutes)
 

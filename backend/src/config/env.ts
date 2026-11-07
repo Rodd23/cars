@@ -1,5 +1,6 @@
 import "dotenv/config";
 import { z } from "zod";
+import { corsOriginsSchema, DEFAULT_DEVELOPMENT_CORS_ORIGINS } from "./cors.js";
 
 const envSchema = z.object({
 	NODE_ENV: z
@@ -9,6 +10,7 @@ const envSchema = z.object({
 	DATABASE_URL: z.string().min(1),
 	OPENAI_API_KEY: z.string().min(1),
 	OPENAI_MODEL: z.string().min(1),
+	CORS_ORIGINS: corsOriginsSchema.default([]),
 });
 
 const parseEnv = envSchema.safeParse(process.env);
@@ -17,4 +19,19 @@ if (!parseEnv.success) {
 	throw new Error(`Invalid environment variables: ${parseEnv.error.message}`);
 }
 
-export const env = parseEnv.data;
+if (
+	parseEnv.data.NODE_ENV === "production" &&
+	parseEnv.data.CORS_ORIGINS.length === 0
+) {
+	throw new Error(
+		"Invalid environment variables: CORS_ORIGINS is required in production",
+	);
+}
+
+export const env = {
+	...parseEnv.data,
+	CORS_ORIGINS:
+		parseEnv.data.CORS_ORIGINS.length > 0
+			? parseEnv.data.CORS_ORIGINS
+			: DEFAULT_DEVELOPMENT_CORS_ORIGINS,
+};

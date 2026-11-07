@@ -1,6 +1,6 @@
 # Plano de reorganização do repositório
 
-Status: destino escolhido pelo usuário em 29/10/2026: raiz Git em `cars/`, com `backend/` e `frontend/`. Execução autorizada pela mensagem “Autorizo” e realizada sem commits. Atualização das Skills permanece pendente por bloqueio de permissão.
+Status: destino escolhido pelo usuário em 29/10/2026: raiz Git em `cars/`, com `backend/` e `frontend/`. Execução autorizada pela mensagem “Autorizo”; a reorganização foi registrada no commit `f99eac4`. Caminhos das Skills atualizados.
 
 ## Estado observado
 
@@ -79,3 +79,7 @@ Este documento não é um script para executar sem inspeção. A migração não
 ### Nova tentativa autorizada
 
 Em 29/10/2026, o usuário autorizou nova tentativa de atualizar os caminhos das duas Skills. A revisão automática voltou a falhar por capacidade do modelo revisor antes da execução do comando. Nenhuma escrita nas Skills nem validação foi executada nessa tentativa; a pendência permanece. Não se trata de uma classificação da alteração como insegura.
+
+### Situação em 07/11/2026
+
+Pendência resolvida: as duas Skills já usam `cars/` como raiz e `backend/src/db/` para persistência. `frontend/` foi criado como pasta reservada com README, sem aplicação.

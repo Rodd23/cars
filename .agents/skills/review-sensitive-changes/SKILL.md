@@ -15,7 +15,7 @@ Examine risco de perda de dados, locks, backfill e recuperação quando aplicáv
 
 ## Autenticação e exposição
 
-Não há autenticação implementada no estado inicial. Para mudanças nessa área, verifique identidade, autorização por operação e casos de acesso negado. Considere `POST /cars`, CORS com `origin: true`, escuta em `0.0.0.0` e mensagens internas em erros. Não descreva CORS como mecanismo de autenticação.
+Não há autenticação implementada no estado inicial. Para mudanças nessa área, verifique identidade, autorização por operação e casos de acesso negado. Considere `POST /cars`, a lista `CORS_ORIGINS`, escuta em `0.0.0.0` e mensagens internas em erros. Não descreva CORS como mecanismo de autenticação.
 
 ## OpenAI e busca
 
