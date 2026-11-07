@@ -2,13 +2,14 @@
 
 ## Contexto e referências
 
-Este repositório contém o backend de um catálogo de veículos. O frontend é uma evolução planejada, ainda não implementada. A raiz Git é `cars/`; a aplicação existente permanece em `backend/`. Consulte também `backend/AGENTS.md` ao alterar a API.
+Este repositório contém o backend de um catálogo de veículos e a interface web de consulta do catálogo em `frontend/`, implementada em 07/11/2026 (listagem, filtros, paginação e detalhes; sem cadastro). A raiz Git é `cars/`; a aplicação existente permanece em `backend/`. Consulte também `backend/AGENTS.md` ao alterar a API.
 
-- [README.md](README.md): entrada do projeto; [backend/README.md](backend/README.md): descrição da API.
+- [README.md](README.md): entrada do projeto; [backend/README.md](backend/README.md): descrição da API; [frontend/README.md](frontend/README.md): interface web.
 - [docs/product.md](docs/product.md): direção do produto e decisões pendentes.
 - [docs/architecture.md](docs/architecture.md): arquitetura implementada.
 - [docs/development.md](docs/development.md): configuração e comandos.
 - [docs/roadmap.md](docs/roadmap.md): sequência proposta de evolução.
+- [docs/workflow-ia.md](docs/workflow-ia.md): subagentes por modelo (`.claude/agents/`) e economia de tokens. Delegue a eles conforme essa tabela quando a tarefa justificar o custo de um contexto novo.
 
 Confirme informações no código antes de alterá-lo. Registre propostas como propostas; não descreva funcionalidades futuras como existentes.
 

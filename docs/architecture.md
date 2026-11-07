@@ -2,7 +2,7 @@
 
 ## Escopo
 
-A raiz Git está em `cars/`, com a aplicação em `backend/`. O código implementa uma API Node.js em TypeScript ESM com Fastify, Zod, Drizzle ORM, PostgreSQL e OpenAI SDK. Não há frontend no repositório analisado. Versões declaradas e resolvidas estão em `backend/package.json` e `backend/package-lock.json`; as versões de Node.js, npm e do servidor PostgreSQL não estão fixadas.
+A raiz Git está em `cars/`, com a aplicação em `backend/`. O código implementa uma API Node.js em TypeScript ESM com Fastify, Zod, Drizzle ORM, PostgreSQL e OpenAI SDK. `frontend/` contém a interface de consulta do catálogo (Vite, React e React Router), implementada em 07/11/2026. Versões declaradas e resolvidas estão em `backend/package.json` e `backend/package-lock.json`; as versões de Node.js, npm e do servidor PostgreSQL não estão fixadas.
 
 ## Fluxos e módulos
 
@@ -17,8 +17,9 @@ server.ts → buildApp() → rotas → CarsController → CarsService
 | Local | Responsabilidade |
 |---|---|
 | `src/server.ts` | Inicializa HTTP em `0.0.0.0` com porta configurável |
-| `src/app.ts` | Constrói Fastify, logger, CORS e rotas |
+| `src/app.ts` | Constrói Fastify, logger, CORS, `/health` e rotas |
 | `src/config/env.ts` | Carrega dotenv e valida configuração com Zod |
+| `src/config/cors.ts` | Valida `CORS_ORIGINS` e monta opções do `@fastify/cors` |
 | `src/db/client.ts` | Pool `pg` e cliente Drizzle |
 | `src/db/schema/` | Tabela `cars` |
 | `src/db/migrations/` | Migration inicial e metadados Drizzle |
@@ -27,7 +28,7 @@ server.ts → buildApp() → rotas → CarsController → CarsService
 
 ## Contratos implementados
 
-- `GET /teste`: resposta fixa; não verifica banco nem OpenAI.
+- `GET /health`: liveness com `{ "status": "ok" }`; não verifica banco nem OpenAI. Substituiu `GET /teste` em 07/11/2026.
 - `POST /cars`: valida criação, insere veículo e responde `201`.
 - `POST /cars/search`: recebe `{ "search": "texto" }` e responde um array de veículos.
 - `GET /cars`: leitura paginada com filtros tradicionais de marca/modelo/versão, defaults de página 1 e tamanho 12 (máximo 100), ordenação por criação e UUID decrescentes, e total de resultados.
@@ -45,12 +46,25 @@ Há uma migration `0000_noisy_rhino.sql`. Sua presença não confirma aplicaçã
 
 As variáveis e comandos estão descritos em [development.md](development.md).
 
+## Frontend
+
+`frontend/` é uma SPA com Vite 8, React 19, React Router 8 (`createBrowserRouter`), TypeScript 7 estrito e CSS Modules. Não usa o backend diretamente: consome `GET /cars` e `GET /cars/:id` por `fetch` com AbortController, a partir de `VITE_API_URL`. Não chama `POST` nem a busca por IA.
+
+| Local | Responsabilidade |
+|---|---|
+| `src/api/` | Cliente HTTP, tipos e erro tipado (404, http, rede) |
+| `src/app/routes.tsx` | Rotas `/`, `/cars`, `/cars/:id` e página não encontrada |
+| `src/features/catalog/` | Páginas, cards, filtros, paginação, formatação e hook de consulta |
+| `src/components/` | `CarImage` (fallback local) e estados de tela |
+
+Filtros, página e navegação ficam na query string; a tela de detalhes retorna ao catálogo pelo `location.state`. Testes com Vitest, jsdom e `fetch` mockado. A interface depende de `CORS_ORIGINS` no backend para a origem de desenvolvimento. Detalhes de uso estão em [frontend/README.md](../frontend/README.md).
+
 ## Limitações e riscos confirmados
 
 - Prompt menciona ano e quilometragem, mas tool, parser e query builder não implementam esses filtros.
 - Falta de tool, JSON inválido ou falha na validação dos argumentos pode produzir filtros vazios. Sem filtros, todo o catálogo é consultado.
 - A busca IA POST não tem paginação; os novos GET têm paginação. Não há autenticação, autorização ou rate limiting implementados.
-- CORS reflete a origem (`origin: true`); exposição efetiva depende da infraestrutura não documentada.
+- CORS aceita somente a lista exata de `CORS_ORIGINS` (padrão `http://localhost:5173` fora de produção; obrigatório em produção). Requisições sem cabeçalho `Origin`, como curl, continuam atendidas: CORS não é autenticação, e a exposição efetiva depende da infraestrutura não documentada.
 - Erros HTTP podem incluir mensagens internas de banco ou provedor.
 - A configuração OpenAI é obrigatória na inicialização, inclusive para rotas sem IA.
 - O texto de busca é enviado a um serviço externo, com custo e latência. Não há política de timeout/retry definida explicitamente pela aplicação.
@@ -58,4 +72,4 @@ As variáveis e comandos estão descritos em [development.md](development.md).
 
 ## Evolução proposta
 
-Frontend consumindo contratos HTTP explícitos; banco e credenciais OpenAI permanecem no backend. A raiz Git foi reorganizada para `cars/`, preservando o histórico; o frontend ainda não foi criado. Não há decisão de framework frontend, workspaces ou pacotes compartilhados. Consulte [roadmap.md](roadmap.md).
+A interface de consulta consome contratos HTTP explícitos; banco e credenciais OpenAI permanecem no backend. A raiz Git foi reorganizada para `cars/`, preservando o histórico. Não há workspaces ou pacotes compartilhados. Consulte [roadmap.md](roadmap.md).

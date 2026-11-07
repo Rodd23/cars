@@ -17,8 +17,9 @@ As dependências estão declaradas em `package.json` e resolvidas em `package-lo
 | `DATABASE_URL` | String não vazia |
 | `OPENAI_API_KEY` | String não vazia |
 | `OPENAI_MODEL` | String não vazia; modelo não fixado no código |
+| `CORS_ORIGINS` | Lista de origens `http(s)` separadas por vírgula, sem caminho ou barra final; vazio fora de produção usa `http://localhost:5173`; obrigatório em `production` |
 
-Não copie valores de `.env` para documentação, logs ou commits. Não há `.env.example` versionado na configuração analisada. Um exemplo sem segredos pode ser proposto em tarefa futura.
+`backend/.env.example` é o modelo versionado, sem segredos. Copie-o para `backend/.env` (ignorado pelo Git) e preencha os valores. Enquanto `DATABASE_URL`, `OPENAI_API_KEY` ou `OPENAI_MODEL` estiverem vazios, a inicialização falha na validação. Não copie valores de `.env` para documentação, logs ou commits.
 
 ## Comandos existentes
 
@@ -27,9 +28,31 @@ Não copie valores de `.env` para documentação, logs ou commits. Não há `.en
 | `npm run build` | Executa `tsc -p tsconfig.json` e escreve em `dist/` |
 | `npm run dev` | Executa `tsx watch src/server.ts`, inicia servidor e carrega configuração |
 | `npm run typecheck` | Verifica tipos sem emitir arquivos |
-| `npm test` | Executa testes locais do catálogo com node:test e tsx; repositório simulado, sem banco ou OpenAI |
+| `npm test` | Executa testes locais do catálogo e do CORS com node:test e tsx; repositório simulado, sem banco ou OpenAI |
 
-Iniciar o servidor constrói clientes de banco e OpenAI. Chamadas a `POST /cars` gravam no banco; chamadas a `POST /cars/search` acionam OpenAI e banco. `GET /teste` não é um health check dessas dependências.
+Iniciar o servidor constrói clientes de banco e OpenAI. Chamadas a `POST /cars` gravam no banco; chamadas a `POST /cars/search` acionam OpenAI e banco. `GET /health` indica apenas que o processo responde; não verifica essas dependências.
+
+## Frontend
+
+Execute os comandos da interface a partir de `cars/frontend/`, com o backend rodando. O projeto usa npm, Vite 8, React 19, TypeScript 7 estrito e Vitest 5.
+
+Copie `frontend/.env.example` para `frontend/.env` (ignorado pelo Git) se precisar alterar a URL da API. A variável é:
+
+| Variável | Regra |
+|---|---|
+| `VITE_API_URL` | URL base da API; padrão `http://localhost:3333` quando ausente |
+
+Variáveis `VITE_` são incluídas no bundle do navegador: nunca coloque segredos nelas. A origem `http://localhost:5173` (porta do Vite, `strictPort`) é o padrão de `CORS_ORIGINS` do backend.
+
+| Comando | Efeito |
+|---|---|
+| `npm run dev` | Inicia o Vite na porta 5173 |
+| `npm run build` | Executa `tsc` e `vite build`, escrevendo `dist/` |
+| `npm run typecheck` | Verifica tipos sem emitir arquivos |
+| `npm test` | Executa `vitest run` com jsdom e Testing Library; `fetch` mockado, sem API real |
+| `npm run preview` | Serve o build de `dist/` |
+
+Os testes do frontend cobrem formatação, catálogo e detalhes (18 testes em 3 arquivos). Playwright foi adiado; o AC10 da spec 001 (teclado e larguras 360, 768 e 1280 px) ainda não foi verificado.
 
 ## Verificação de tipos sem emissão
 
@@ -49,7 +72,7 @@ Esses comandos não são scripts npm existentes. Não iniciam a aplicação nem 
 
 ## Testes e automação
 
-Há sete testes em `backend/tests/catalog.test.ts`, usando `node:test`, Fastify inject e tsx já instalado. Cobrem os novos endpoints GET com repositório simulado e compilação dos filtros SQL. Ainda não há integração com PostgreSQL isolado, linter, formatter ou CI/CD. Não existem scripts `lint`, `format`, `start` ou migrations.
+Há onze testes, usando `node:test`, Fastify inject e tsx: sete em `backend/tests/catalog.test.ts`, cobrindo os endpoints GET com repositório simulado e compilação dos filtros SQL, e quatro em `backend/tests/cors.test.ts`, cobrindo validação de `CORS_ORIGINS` e cabeçalhos para origens permitidas e bloqueadas. Ainda não há integração com PostgreSQL isolado, linter, formatter ou CI/CD. Não existem scripts `lint`, `format`, `start` ou migrations.
 
 O runtime disponível foi identificado como Node v22.17.0 em `C:\nvm4w\nodejs\node.exe` (link para instalação fora do sandbox). Isso é uma observação do ambiente, não uma versão fixada pelo projeto. Na sessão atual, executar esse runtime exigiu aprovação fora do sandbox. Se `node` não estiver no PATH, é possível executar o typecheck com esse binário e `node_modules/typescript/bin/tsc`, ou os testes com `--import tsx --test tests/catalog.test.ts`, a partir do backend e com a aprovação necessária.
 

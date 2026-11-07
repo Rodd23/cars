@@ -1,6 +1,6 @@
 # Plano — Catálogo web interno
 
-Status: contratos e comportamentos da [spec](spec.md) aprovados em 29/10/2026. Primeira entrega backend implementada: listagem paginada, detalhes, sete testes locais, typecheck e build aprovados. Integração PostgreSQL e frontend ainda pendentes; consultar evidências na spec.
+Status: contratos e comportamentos da [spec](spec.md) aprovados em 29/10/2026. Primeira entrega backend implementada: listagem paginada, detalhes, sete testes locais, typecheck e build aprovados. Etapa 3 (interface de consulta) implementada em 07/11/2026 em `frontend/`, com 18 testes, typecheck e build aprovados; AC10 e integração PostgreSQL ainda pendentes. Consultar evidências na spec.
 
 ## 1. Resolver decisões de preparação
 

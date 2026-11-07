@@ -1,6 +1,6 @@
 # 001 — Catálogo web interno
 
-Status: contratos e comportamentos aprovados pelo usuário em 29/10/2026, pela mensagem “Aprovo”. Implementação em andamento: primeira entrega backend pronta para revisão, reorganização realizada e tecnologia frontend ainda pendente.
+Status: contratos e comportamentos aprovados pelo usuário em 29/10/2026, pela mensagem “Aprovo”. Implementação em andamento: backend e interface de consulta implementados (frontend em 07/11/2026); pendências de AC10, AC11 e integração PostgreSQL isolada. Reorganização realizada.
 
 ## Problema e objetivo
 
@@ -17,7 +17,7 @@ Decisões confirmadas pelo usuário nesta conversa:
 - [cars.routes.ts](../../../backend/src/modules/cars/cars.routes.ts) registra somente `POST /cars` e `POST /cars/search`.
 - [cars.repository.ts](../../../backend/src/modules/cars/cars.repository.ts) insere veículos e consulta sem paginação; preço de entrada é convertido para string.
 - [schema da tabela](../../../backend/src/db/schema/cars.ts) define preço `numeric(12,2)` e campos nullable.
-- Não há frontend, autenticação ou autorização implementados. A configuração OpenAI é obrigatória na inicialização atual, embora o novo fluxo não deva chamá-la.
+- Na data desta spec não havia frontend (implementado depois, em 07/11/2026, ver evidências). Não há autenticação ou autorização implementadas. A configuração OpenAI é obrigatória na inicialização atual, embora o novo fluxo não deva chamá-la.
 
 ## Escopo proposto
 
@@ -138,11 +138,11 @@ Credenciais PostgreSQL e OpenAI nunca entram no bundle frontend. A URL da API é
 
 ## Decisões pendentes e aprovação
 
-- Tecnologia frontend e ferramentas de teste: selecionar em uma decisão técnica antes de instalar dependências; sem framework aprovado neste rascunho.
-- Organização escolhida: raiz Git em `cars/`, com `backend/` e futuro `frontend/` lado a lado. Reorganização executada sem commits; os caminhos das duas Skills foram corrigidos e validados após aprovação fora do sandbox.
+- Tecnologia frontend e ferramentas de teste: decidida pelo usuário e aplicada em `frontend/` — Vite 8, React 19, React Router 8 (SPA, `createBrowserRouter`), TypeScript 7 estrito, CSS Modules, `fetch` com AbortController; Vitest 5, jsdom e Testing Library com `fetch` mockado. Playwright adiado.
+- Organização escolhida: raiz Git em `cars/`, com `backend/` e `frontend/` lado a lado. Reorganização executada sem commits; os caminhos das duas Skills foram corrigidos e validados após aprovação fora do sandbox.
 - Autenticação e acesso compartilhado: fora desta implementação local; obrigatórios como decisão antes de disponibilizar o produto a outros usuários.
 
-Próximo passo: resolver organização/tecnologia e executar o [plano](plan.md). Não é necessário pedir novamente aprovação dos contratos aqui definidos. A aprovação não inclui reorganização do Git, migrations, chamadas pagas ou deploy.
+Próximo passo: validar AC10, a regressão HTTP dos POST (AC11) e a integração com PostgreSQL isolado, conforme o [plano](plan.md). Não é necessário pedir novamente aprovação dos contratos aqui definidos. A aprovação não inclui reorganização do Git, migrations, chamadas pagas ou deploy.
 
 ## Evidências da entrega
 
@@ -155,6 +155,12 @@ Verificação TypeScript sem emissão e build aprovados; sete testes locais apro
 - AC04 e AC09: testes HTTP 400/404/200 e erros 500 seguros aprovados.
 - AC08: plugin GET testado isoladamente sem OpenAI nem gravação; inicialização completa mantém a dependência de configuração anterior.
 - AC11: handlers POST preservados; teste de regressão HTTP completo ainda pendente.
-- AC05–AC07 e AC10: frontend ainda não implementado; critérios não validados.
+Interface de consulta implementada em `frontend/` em 07/11/2026, com a stack descrita na seção de decisões. Validação executada em `frontend/`: typecheck sem erros; 18 testes em 3 arquivos (formatação, catálogo e detalhes) aprovados, com todos os `fetch` verificados como GET; build aprovado. Backend: 11 testes aprovados, sem mudança nesta entrega.
 
-A especificação inteira permanece em andamento, não concluída.
+- AC05: formatação de preço (`"50000.00"` em pt-BR/BRL), `null` e quilometragem zero validados por testes de interface.
+- AC06: filtros, página, detalhes e Voltar validados com testes de navegação em memory router. Sem teste E2E em navegador real.
+- AC07: carregamento, erro, vazio, imagem quebrada e 404 validados por testes de interface.
+- AC08: frontend só faz GET, verificado nos testes.
+- AC10: não validado. O CSS foi escrito para teclado e larguras de 360, 768 e 1280 px (grid `auto-fill` com `minmax(240px, 1fr)`, `aspect-ratio`, foco visível, labels), mas falta verificação manual ou Playwright.
+
+A especificação inteira permanece em andamento, não concluída. Pendências: AC10, AC11 e integração PostgreSQL isolada.
