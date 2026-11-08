@@ -1,10 +1,131 @@
-*, *::before, *::after { box-sizing: border-box; }
-body { margin: 0; font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; color: #111827; background: #f3f4f6; line-height: 1.5; }
-a { color: #1d4ed8; }
-:focus-visible { outline: 3px solid #1d4ed8; outline-offset: 2px; }
-.container { max-width: 1200px; margin: 0 auto; padding: 1rem; }
-.button { display: inline-block; padding: 0.55rem 1rem; font: inherit; color: #fff; background: #1d4ed8; border: 1px solid #1d4ed8; border-radius: 6px; cursor: pointer; text-decoration: none; }
-.button:hover:not(:disabled) { background: #1e40af; }
-.button:disabled { opacity: 0.55; cursor: not-allowed; }
-.buttonSecondary { color: #1d4ed8; background: #fff; }
-.buttonSecondary:hover:not(:disabled) { background: #eff6ff; }
+@import "tailwindcss";
+
+/* Tokens e temas: ver frontend/DESIGN.md. Hexadecimais só aparecem aqui. */
+:root {
+	color-scheme: light dark;
+	--canvas: #f7f8f8;
+	--surface: #ffffff;
+	--muted: #f2f3f5;
+	--muted-strong: #e9ebee;
+	--border: #e1e3e8;
+	--border-strong: #c9cdd5;
+	--input: #8a8f98;
+	--ink: #0f1011;
+	--ink-muted: #3c4149;
+	--ink-subtle: #5f646d;
+	--ink-tertiary: #8a8f98;
+	--primary: #5e6ad2;
+	--primary-hover: #4f5bc4;
+	--on-primary: #ffffff;
+	--primary-soft: color-mix(in oklab, #5e6ad2 11%, transparent);
+	--primary-soft-ink: #3f4ab0;
+	--link: #4c57c2;
+	--ring: #5e6ad2;
+	--danger: #c0352b;
+	--success: #1f8a3b;
+	--placeholder: #e9ebee;
+	--shadow-lift: 0 1px 2px rgb(15 16 17 / 0.04), 0 12px 28px -14px rgb(15 16 17 / 0.28);
+	--shadow-pop: 0 2px 6px rgb(15 16 17 / 0.06), 0 18px 40px -16px rgb(15 16 17 / 0.30);
+}
+
+@media (prefers-color-scheme: dark) {
+	:root:not([data-theme="light"]) {
+		--canvas: #010102;
+		--surface: #0f1011;
+		--muted: #141516;
+		--muted-strong: #18191a;
+		--border: #23252a;
+		--border-strong: #34343a;
+		--input: #62666d;
+		--ink: #f7f8f8;
+		--ink-muted: #d0d6e0;
+		--ink-subtle: #8a8f98;
+		--ink-tertiary: #62666d;
+		--primary-soft: color-mix(in oklab, #828fff 16%, transparent);
+		--primary-soft-ink: #b4bbff;
+		--link: #9aa3ff;
+		--ring: #828fff;
+		--danger: #f2726a;
+		--success: #27a644;
+		--placeholder: #18191a;
+		--shadow-lift: 0 1px 2px rgb(0 0 0 / 0.5), 0 14px 30px -14px rgb(0 0 0 / 0.9);
+		--shadow-pop: 0 2px 6px rgb(0 0 0 / 0.5), 0 22px 44px -16px rgb(0 0 0 / 0.95);
+	}
+}
+
+:root[data-theme="dark"] {
+	color-scheme: dark;
+	--canvas: #010102;
+	--surface: #0f1011;
+	--muted: #141516;
+	--muted-strong: #18191a;
+	--border: #23252a;
+	--border-strong: #34343a;
+	--input: #62666d;
+	--ink: #f7f8f8;
+	--ink-muted: #d0d6e0;
+	--ink-subtle: #8a8f98;
+	--ink-tertiary: #62666d;
+	--primary-soft: color-mix(in oklab, #828fff 16%, transparent);
+	--primary-soft-ink: #b4bbff;
+	--link: #9aa3ff;
+	--ring: #828fff;
+	--danger: #f2726a;
+	--success: #27a644;
+	--placeholder: #18191a;
+	--shadow-lift: 0 1px 2px rgb(0 0 0 / 0.5), 0 14px 30px -14px rgb(0 0 0 / 0.9);
+	--shadow-pop: 0 2px 6px rgb(0 0 0 / 0.5), 0 22px 44px -16px rgb(0 0 0 / 0.95);
+}
+
+:root[data-theme="light"] {
+	color-scheme: light;
+}
+
+@theme inline {
+	--font-sans: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+	--color-canvas: var(--canvas);
+	--color-surface: var(--surface);
+	--color-muted: var(--muted);
+	--color-muted-strong: var(--muted-strong);
+	--color-line: var(--border);
+	--color-line-strong: var(--border-strong);
+	--color-input: var(--input);
+	--color-ink: var(--ink);
+	--color-ink-muted: var(--ink-muted);
+	--color-ink-subtle: var(--ink-subtle);
+	--color-ink-tertiary: var(--ink-tertiary);
+	--color-primary: var(--primary);
+	--color-primary-hover: var(--primary-hover);
+	--color-on-primary: var(--on-primary);
+	--color-primary-soft: var(--primary-soft);
+	--color-primary-soft-ink: var(--primary-soft-ink);
+	--color-link: var(--link);
+	--color-ring: var(--ring);
+	--color-danger: var(--danger);
+	--color-success: var(--success);
+	--color-placeholder: var(--placeholder);
+	--shadow-lift: var(--shadow-lift);
+	--shadow-pop: var(--shadow-pop);
+	--ease-out-quint: cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+@custom-variant pointer-coarse (@media (pointer: coarse));
+
+@layer base {
+	html { background: var(--canvas); }
+	body { @apply bg-canvas text-ink font-sans antialiased; }
+	::selection { background: var(--primary-soft); color: var(--ink); }
+	:focus-visible { outline: 2px solid var(--ring); outline-offset: 2px; }
+	input, button, select { font: inherit; }
+	input { caret-color: var(--primary); }
+	input::placeholder { color: var(--ink-subtle); opacity: 1; }
+	a, button, input, select, label { touch-action: manipulation; }
+	.num { font-variant-numeric: tabular-nums; }
+	h1, h2, h3 { text-wrap: balance; }
+	@media (prefers-reduced-motion: reduce) {
+		*, *::before, *::after { transition-duration: 0ms !important; animation: none !important; }
+	}
+}
+
+main:focus { outline: none; }
+main:focus-visible { outline: 2px solid var(--ring); outline-offset: -2px; }

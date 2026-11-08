@@ -1,5 +1,6 @@
-import { act, fireEvent, screen, waitFor } from "@testing-library/react";
+import { act, fireEvent, screen, waitFor, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
+import { pageSequence } from "../src/features/catalog/Pagination.js";
 import { json, makeCar, makeList, mockFetch, renderApp, requestedUrls } from "./helpers.js";
 
 afterEach(() => {
@@ -14,7 +15,7 @@ describe("catalogo", () => {
 		renderApp("/cars");
 		expect(await screen.findByText("Toyota Corolla")).toBeInTheDocument();
 		expect(screen.getByText("Honda Civic")).toBeInTheDocument();
-		expect(screen.getByText(/· 0 km/)).toBeInTheDocument();
+		expect(screen.getByText("0 km")).toBeInTheDocument();
 		expect(screen.queryByText("null")).not.toBeInTheDocument();
 		const url = requestedUrls(fetchMock)[0]!;
 		expect(url.pathname).toBe("/cars");
@@ -30,7 +31,7 @@ describe("catalogo", () => {
 		expect(requestedUrls(fetchMock)[0]!.searchParams.get("page")).toBe("1");
 	});
 
-	it("Buscar aplica trim e page 1; Limpar remove filtros; sem fetch por tecla", async () => {
+	it("Filtrar aplica trim e page 1; Limpar filtros remove todos; sem fetch por tecla", async () => {
 		const user = userEvent.setup();
 		const fetchMock = mockFetch(() => json(makeList([makeCar()], 1, 30)));
 		const { router } = renderApp("/cars?page=2");
@@ -41,7 +42,7 @@ describe("catalogo", () => {
 		await user.type(screen.getByLabelText("Modelo"), "Cor");
 		expect(fetchMock).toHaveBeenCalledTimes(1);
 
-		await user.click(screen.getByRole("button", { name: "Buscar" }));
+		await user.click(screen.getByRole("button", { name: "Filtrar" }));
 		await screen.findByText("Toyota Corolla");
 		await waitFor(() => expect(fetchMock).toHaveBeenCalledTimes(2));
 		expect(router.state.location.search).toBe("?brand=Toy&model=Cor");
@@ -50,9 +51,12 @@ describe("catalogo", () => {
 		expect(url.searchParams.get("page")).toBe("1");
 		expect(url.searchParams.has("version")).toBe(false);
 
-		await user.click(screen.getByRole("button", { name: "Limpar" }));
+		expect(screen.queryByRole("button", { name: "Limpar" })).not.toBeInTheDocument();
+		await user.click(screen.getByRole("button", { name: "Limpar filtros" }));
 		await screen.findByText("Toyota Corolla");
-		expect(router.state.location.search).toBe("");
+		await waitFor(() => expect(router.state.location.search).toBe(""));
+		expect(requestedUrls(fetchMock)[2]!.searchParams.get("page")).toBe("1");
+		expect(screen.queryByRole("button", { name: "Limpar filtros" })).not.toBeInTheDocument();
 		expect(screen.getByLabelText("Marca")).toHaveValue("");
 	});
 
@@ -70,7 +74,7 @@ describe("catalogo", () => {
 		mockFetch((url) => json(makeList([makeCar()], Number(url.searchParams.get("page")), 30)));
 		const { router } = renderApp("/cars");
 		await screen.findByText(/Página 1 de 3/);
-		expect(screen.getByText(/30 resultados/)).toBeInTheDocument();
+		expect(screen.getByText(/30 veículos/)).toBeInTheDocument();
 		expect(screen.getByRole("button", { name: "Anterior" })).toBeDisabled();
 
 		await user.click(screen.getByRole("button", { name: "Próxima" }));
@@ -123,15 +127,15 @@ describe("catalogo", () => {
 		expect(requestedUrls(fetchMock)[1]!.search).toBe(requestedUrls(fetchMock)[0]!.search);
 	});
 
-	it("mostra indicador de carregamento e desabilita Buscar", async () => {
+	it("mostra indicador de carregamento e desabilita Filtrar", async () => {
 		let resolve!: (r: Response) => void;
 		mockFetch(() => new Promise<Response>((r) => (resolve = r)));
 		renderApp("/cars");
 		expect(screen.getByRole("status")).toHaveAttribute("aria-busy", "true");
-		expect(screen.getByRole("button", { name: "Buscar" })).toBeDisabled();
+		expect(screen.getByRole("button", { name: "Buscando…" })).toBeDisabled();
 		await act(async () => resolve(json(makeList([makeCar()]))));
 		expect(await screen.findByText("Toyota Corolla")).toBeInTheDocument();
-		expect(screen.getByRole("button", { name: "Buscar" })).toBeEnabled();
+		expect(screen.getByRole("button", { name: "Filtrar" })).toBeEnabled();
 	});
 
 	it("resposta antiga nao sobrescreve a mais recente", async () => {
@@ -160,7 +164,10 @@ describe("catalogo", () => {
 		await screen.findByText("Toyota Corolla");
 		expect(screen.getAllByText("Sem imagem")).toHaveLength(1);
 		const img = screen.getByAltText("Foto do Toyota Corolla 2020");
-		expect(img).toHaveAttribute("loading", "lazy");
+		// Primeira linha carrega sem lazy; dimensões evitam salto de layout.
+		expect(img).toHaveAttribute("loading", "eager");
+		expect(img).toHaveAttribute("width");
+		expect(img).toHaveAttribute("height");
 		fireEvent.error(img);
 		await waitFor(() => expect(screen.getAllByText("Sem imagem")).toHaveLength(2));
 		expect(screen.getByRole("img", { name: "Foto do Toyota Corolla 2020" })).toBeInTheDocument();
@@ -175,5 +182,67 @@ describe("catalogo", () => {
 		renderApp("/nada");
 		expect(screen.getByRole("heading", { name: "Página não encontrada" })).toBeInTheDocument();
 		expect(screen.getByRole("link", { name: "Ir para o catálogo" })).toHaveAttribute("href", "/cars");
+	});
+});
+
+describe("card do catalogo", () => {
+	it("mostra preco sem centavos, combustivel e cambio e omite metadados nulos", async () => {
+		mockFetch(() =>
+			json(
+				makeList([
+					makeCar({ price: "189900.00" }),
+					car2,
+					makeCar({
+						id: "33333333-3333-4333-8333-333333333333",
+						brand: "Fiat",
+						model: "Uno",
+						fuel: null,
+						transmission: null,
+						mileage: null,
+					}),
+				]),
+			),
+		);
+		renderApp("/cars");
+		const toyota = (await screen.findByText("Toyota Corolla")).closest("li")!;
+		expect(toyota).toHaveTextContent(/R\$.189\.900(?!,)/);
+		expect(toyota).not.toHaveTextContent("189.900,00");
+		expect(toyota).toHaveTextContent("2020");
+		expect(toyota).toHaveTextContent("45.000 km");
+		expect(toyota).toHaveTextContent("Flex");
+		expect(toyota).toHaveTextContent("Automático");
+
+		const uno = screen.getByText("Fiat Uno").closest("li")!;
+		expect(uno).toHaveTextContent("2020");
+		expect(uno).not.toHaveTextContent("km");
+		expect(uno).not.toHaveTextContent("Não informad");
+		expect(uno).not.toHaveTextContent("null");
+	});
+});
+
+describe("paginacao numerada", () => {
+	it("sequencia de paginas: todas ate 7; acima, com reticencias", () => {
+		expect(pageSequence(1, 1)).toEqual([1]);
+		expect(pageSequence(3, 7)).toEqual([1, 2, 3, 4, 5, 6, 7]);
+		expect(pageSequence(1, 10)).toEqual([1, 2, "ellipsis-end", 10]);
+		expect(pageSequence(5, 10)).toEqual([1, "ellipsis-start", 4, 5, 6, "ellipsis-end", 10]);
+		expect(pageSequence(3, 10)).toEqual([1, 2, 3, 4, "ellipsis-end", 10]);
+		expect(pageSequence(9, 10)).toEqual([1, "ellipsis-start", 8, 9, 10]);
+		expect(pageSequence(10, 10)).toEqual([1, "ellipsis-start", 9, 10]);
+	});
+
+	it("marca a pagina atual com aria-current e navega pelos numeros", async () => {
+		const user = userEvent.setup();
+		mockFetch((url) => json(makeList([makeCar()], Number(url.searchParams.get("page")), 120)));
+		const { router } = renderApp("/cars?page=5");
+		await screen.findByText(/Página 5 de 10/);
+		const nav = screen.getByRole("navigation", { name: "Paginação" });
+		expect(within(nav).getByRole("button", { name: "Página 5" })).toHaveAttribute("aria-current", "page");
+		expect(within(nav).queryByRole("button", { name: "Página 2" })).not.toBeInTheDocument();
+		expect(within(nav).getByRole("button", { name: "Página 10" })).toBeInTheDocument();
+		await user.click(within(nav).getByRole("button", { name: "Página 6" }));
+		await waitFor(() => expect(router.state.location.search).toBe("?page=6"));
+		await screen.findByText(/Página 6 de 10/);
+		expect(within(nav).getByRole("button", { name: "Página 6" })).toHaveAttribute("aria-current", "page");
 	});
 });

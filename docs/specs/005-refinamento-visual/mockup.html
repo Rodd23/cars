@@ -1,0 +1,601 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Mockup · Refinamento visual</title>
+<script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4.1.11"></script>
+<script src="https://unpkg.com/lucide@0.468.0/dist/umd/lucide.min.js"></script>
+<style type="text/tailwindcss">
+	/* Tokens: mesma paleta do DESIGN.md atual, expostos no formato de variáveis do shadcn/ui. */
+	:root {
+		color-scheme: light;
+		--canvas: #f7f8f8;
+		--surface: #ffffff;
+		--muted: #f2f3f5;
+		--muted-strong: #e9ebee;
+		--border: #e1e3e8;
+		--border-strong: #c9cdd5;
+		--input: #8a8f98;
+		--ink: #0f1011;
+		--ink-muted: #3c4149;
+		--ink-subtle: #5f646d;
+		--ink-tertiary: #8a8f98;
+		--primary: #5e6ad2;
+		--primary-hover: #4f5bc4;
+		--on-primary: #ffffff;
+		--primary-soft: color-mix(in oklab, #5e6ad2 11%, transparent);
+		--primary-soft-ink: #3f4ab0;
+		--link: #4c57c2;
+		--ring: #5e6ad2;
+		--danger: #c0352b;
+		--success: #1f8a3b;
+		--placeholder: #e9ebee;
+		--shadow-lift: 0 1px 2px rgb(15 16 17 / 0.04), 0 12px 28px -14px rgb(15 16 17 / 0.28);
+		--shadow-pop: 0 2px 6px rgb(15 16 17 / 0.06), 0 18px 40px -16px rgb(15 16 17 / 0.30);
+	}
+	:root[data-theme="dark"] {
+		color-scheme: dark;
+		--canvas: #010102;
+		--surface: #0f1011;
+		--muted: #141516;
+		--muted-strong: #18191a;
+		--border: #23252a;
+		--border-strong: #34343a;
+		--input: #62666d;
+		--ink: #f7f8f8;
+		--ink-muted: #d0d6e0;
+		--ink-subtle: #8a8f98;
+		--ink-tertiary: #62666d;
+		--primary-soft: color-mix(in oklab, #828fff 16%, transparent);
+		--primary-soft-ink: #b4bbff;
+		--link: #9aa3ff;
+		--ring: #828fff;
+		--danger: #f2726a;
+		--success: #27a644;
+		--placeholder: #18191a;
+		--shadow-lift: 0 1px 2px rgb(0 0 0 / 0.5), 0 14px 30px -14px rgb(0 0 0 / 0.9);
+		--shadow-pop: 0 2px 6px rgb(0 0 0 / 0.5), 0 22px 44px -16px rgb(0 0 0 / 0.95);
+	}
+
+	@theme inline {
+		--font-sans: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+		--color-canvas: var(--canvas);
+		--color-surface: var(--surface);
+		--color-muted: var(--muted);
+		--color-muted-strong: var(--muted-strong);
+		--color-line: var(--border);
+		--color-line-strong: var(--border-strong);
+		--color-input: var(--input);
+		--color-ink: var(--ink);
+		--color-ink-muted: var(--ink-muted);
+		--color-ink-subtle: var(--ink-subtle);
+		--color-ink-tertiary: var(--ink-tertiary);
+		--color-primary: var(--primary);
+		--color-primary-hover: var(--primary-hover);
+		--color-on-primary: var(--on-primary);
+		--color-primary-soft: var(--primary-soft);
+		--color-primary-soft-ink: var(--primary-soft-ink);
+		--color-link: var(--link);
+		--color-ring: var(--ring);
+		--color-danger: var(--danger);
+		--color-success: var(--success);
+		--color-placeholder: var(--placeholder);
+		--shadow-lift: var(--shadow-lift);
+		--shadow-pop: var(--shadow-pop);
+		--ease-out-quint: cubic-bezier(0.22, 1, 0.36, 1);
+	}
+
+	@layer base {
+		html { background: var(--canvas); }
+		body { @apply bg-canvas text-ink font-sans antialiased; }
+		::selection { background: var(--primary-soft); color: var(--ink); }
+		:focus-visible { outline: 2px solid var(--ring); outline-offset: 2px; }
+		input, button, select { font: inherit; }
+		input { caret-color: var(--primary); }
+		.num { font-variant-numeric: tabular-nums; }
+		h1, h2 { text-wrap: balance; }
+		@media (prefers-reduced-motion: reduce) {
+			*, *::before, *::after { transition-duration: 0ms !important; animation: none !important; }
+		}
+	}
+
+	@layer components {
+		/* Botões (shadcn Button: default, outline, ghost) */
+		.btn { @apply inline-flex items-center justify-center gap-2 h-10 px-4 rounded-lg text-sm font-medium whitespace-nowrap select-none transition-[background-color,border-color,color,box-shadow] duration-150 disabled:opacity-50 disabled:cursor-not-allowed; }
+		.btn-primary { @apply bg-primary text-on-primary hover:bg-primary-hover; }
+		.btn-outline { @apply bg-surface text-ink border border-input hover:bg-muted; }
+		.btn-ghost { @apply text-ink-subtle hover:text-ink hover:bg-muted; }
+		.btn-icon { @apply w-10 px-0; }
+		.btn svg { @apply size-4 shrink-0; }
+
+		/* Input (shadcn Input) */
+		.field-label { @apply block text-[13px] font-medium text-ink-subtle mb-1.5; }
+		.input { @apply w-full h-11 rounded-lg border border-input bg-surface px-3 text-base text-ink placeholder:text-ink-subtle transition-[border-color,box-shadow] duration-150 hover:border-ink-subtle focus:outline-none focus:border-primary focus:ring-4 focus:ring-primary-soft; }
+
+		/* Badge / chip (shadcn Badge) */
+		.badge { @apply inline-flex items-center gap-1 h-6 px-2 rounded-md text-xs font-medium bg-muted-strong text-ink-muted; }
+		.chip { @apply inline-flex items-center gap-1.5 h-8 pl-3 pr-1 rounded-full text-[13px] font-medium bg-primary-soft text-primary-soft-ink; }
+		.chip button { @apply grid place-items-center size-6 rounded-full hover:bg-primary-soft; }
+		.chip svg { @apply size-3.5; }
+
+		/* Segmented (shadcn ToggleGroup) */
+		.seg { @apply inline-flex p-1 gap-1 rounded-lg bg-muted border border-line; }
+		.seg button { @apply h-8 px-3 rounded-md text-[13px] font-medium text-ink-subtle transition-colors duration-150 hover:text-ink; }
+		.seg button[aria-pressed="true"] { @apply bg-surface text-ink shadow-[0_1px_2px_rgb(0_0_0/0.12)]; }
+
+		.panel { @apply bg-surface border border-line rounded-xl; }
+	}
+</style>
+</head>
+<body class="min-h-screen">
+
+<!-- ═══ Barra do mockup (não faz parte do design) ═══ -->
+<div class="sticky top-0 z-50 border-b border-dashed border-line-strong bg-muted/95 backdrop-blur">
+	<div class="max-w-[1200px] mx-auto px-4 lg:px-6 h-12 flex items-center gap-3 overflow-x-auto text-[13px]">
+		<span class="font-semibold text-ink-subtle whitespace-nowrap">Mockup</span>
+		<div class="seg" role="group" aria-label="Tela">
+			<button data-screen="catalog" aria-pressed="true">Catálogo</button>
+			<button data-screen="details" aria-pressed="false">Detalhes</button>
+			<button data-screen="login" aria-pressed="false">Login</button>
+			<button data-screen="form" aria-pressed="false">Cadastro</button>
+			<button data-screen="notes" aria-pressed="false">O que muda</button>
+		</div>
+		<div class="seg ml-auto" role="group" aria-label="Tema do mockup">
+			<button data-theme-set="light" aria-pressed="true">Claro</button>
+			<button data-theme-set="dark" aria-pressed="false">Escuro</button>
+		</div>
+	</div>
+</div>
+
+<!-- ═══ Barra superior do app ═══ -->
+<header id="app-topbar" class="border-b border-line bg-surface/80 backdrop-blur-sm">
+	<div class="max-w-[1200px] mx-auto px-4 lg:px-6 h-16 flex items-center gap-4">
+		<a href="#" data-go="catalog" class="flex items-center gap-2.5 font-semibold text-[15px] tracking-tight">
+			<span class="grid place-items-center size-8 rounded-lg bg-ink text-canvas"><i data-lucide="car-front" class="size-[18px]"></i></span>
+			<span>Catálogo<span class="hidden sm:inline text-ink-subtle font-medium"> de veículos</span></span>
+		</a>
+		<div class="ml-auto flex items-center gap-1.5">
+			<button class="btn btn-primary hidden sm:inline-flex" data-go="form"><i data-lucide="plus"></i>Novo veículo</button>
+			<button class="btn btn-primary btn-icon sm:hidden" data-go="form" aria-label="Novo veículo"><i data-lucide="plus"></i></button>
+			<div class="relative">
+				<button class="btn btn-ghost pl-1.5 pr-2.5 gap-2" data-pop="user-menu" aria-haspopup="menu" aria-expanded="false">
+					<span class="grid place-items-center size-7 rounded-full bg-primary-soft text-primary-soft-ink text-xs font-semibold">RB</span>
+					<span class="hidden md:inline text-ink">Rodrigo</span>
+					<i data-lucide="chevron-down" class="text-ink-subtle"></i>
+				</button>
+				<div id="user-menu" hidden class="absolute right-0 top-12 z-40 w-60 panel shadow-pop p-1.5">
+					<div class="px-2.5 py-2">
+						<p class="text-sm font-medium">Rodrigo Belchior</p>
+						<p class="text-xs text-ink-subtle">rodrigo@empresa.com.br</p>
+					</div>
+					<div class="h-px bg-line my-1"></div>
+					<p class="px-2.5 pt-1.5 pb-1 text-xs text-ink-subtle">Tema</p>
+					<div class="seg w-full mb-1" role="group" aria-label="Tema">
+						<button class="flex-1 flex items-center justify-center gap-1.5" aria-pressed="false"><i data-lucide="monitor" class="size-3.5"></i>Sistema</button>
+						<button class="flex-1 flex items-center justify-center gap-1.5" aria-pressed="true"><i data-lucide="sun" class="size-3.5"></i>Claro</button>
+						<button class="flex-1 flex items-center justify-center gap-1.5" aria-pressed="false"><i data-lucide="moon" class="size-3.5"></i>Escuro</button>
+					</div>
+					<div class="h-px bg-line my-1"></div>
+					<button class="w-full flex items-center gap-2 h-9 px-2.5 rounded-md text-sm text-ink-muted hover:bg-muted"><i data-lucide="log-out" class="size-4"></i>Sair</button>
+				</div>
+			</div>
+		</div>
+	</div>
+</header>
+
+<!-- ═══════════════ CATÁLOGO ═══════════════ -->
+<main id="screen-catalog" data-screen-panel class="max-w-[1200px] mx-auto px-4 lg:px-6 pt-8 pb-16">
+	<div class="flex flex-wrap items-baseline gap-x-3 gap-y-1">
+		<h1 class="text-[24px] md:text-[30px] font-semibold tracking-[-0.02em] leading-tight">Catálogo de veículos</h1>
+		<p class="text-sm text-ink-subtle num">128 veículos</p>
+	</div>
+
+	<!-- Busca inteligente: protagonista da página -->
+	<section class="mt-6">
+		<form id="smart-form" class="group relative flex items-center gap-2 h-16 pl-5 pr-2 rounded-2xl bg-surface border border-line-strong shadow-lift transition-[border-color,box-shadow] duration-200 focus-within:border-primary focus-within:ring-4 focus-within:ring-primary-soft">
+			<i data-lucide="sparkles" class="size-5 text-primary shrink-0"></i>
+			<label for="smart" class="sr-only">Busca inteligente</label>
+			<input id="smart" maxlength="300" placeholder="Descreva o carro: BMW até 50 mil km, de 2018 a 2020…" class="flex-1 min-w-0 h-full bg-transparent text-base md:text-[17px] placeholder:text-ink-subtle focus:outline-none" />
+			<kbd class="hidden md:inline-flex items-center h-6 px-1.5 rounded border border-line text-[11px] text-ink-subtle">/</kbd>
+			<button type="submit" class="btn btn-primary h-12 px-5 rounded-xl">Buscar</button>
+		</form>
+		<div class="mt-3 flex flex-wrap items-center gap-2 text-[13px]">
+			<span class="text-ink-subtle">Experimente:</span>
+			<button class="suggest h-7 px-3 rounded-full border border-line bg-surface text-ink-muted hover:border-line-strong hover:text-ink transition-colors">SUV automático até R$ 150 mil</button>
+			<button class="suggest h-7 px-3 rounded-full border border-line bg-surface text-ink-muted hover:border-line-strong hover:text-ink transition-colors">Toyota a partir de 2020</button>
+			<button class="suggest h-7 px-3 rounded-full border border-line bg-surface text-ink-muted hover:border-line-strong hover:text-ink transition-colors">Hatch com menos de 30 mil km</button>
+		</div>
+		<p role="status" class="mt-4 flex items-start gap-2 text-sm text-ink-muted">
+			<i data-lucide="circle-check" class="size-4 mt-0.5 text-success shrink-0"></i>
+			<span><span class="font-medium text-ink">Entendi:</span> preço até R$ 250.000 · ano 2019–2022. <span class="text-ink-subtle">Ignorado: cor preta.</span></span>
+		</p>
+	</section>
+
+	<!-- Filtros em barra de ferramentas -->
+	<form class="mt-6 flex flex-wrap items-end gap-2.5" aria-label="Filtros do catálogo" onsubmit="return false">
+		<div class="w-[calc(50%-5px)] sm:w-40">
+			<label class="field-label" for="f-brand">Marca</label>
+			<input id="f-brand" class="input h-10" placeholder="Ex.: Toyota…" />
+		</div>
+		<div class="w-[calc(50%-5px)] sm:w-40">
+			<label class="field-label" for="f-model">Modelo</label>
+			<input id="f-model" class="input h-10" placeholder="Ex.: Corolla…" />
+		</div>
+		<div class="hidden lg:block w-36">
+			<label class="field-label" for="f-version">Versão</label>
+			<input id="f-version" class="input h-10" placeholder="Ex.: XEi…" />
+		</div>
+		<div class="flex flex-wrap gap-2">
+			<div class="relative">
+				<button type="button" class="btn btn-outline border-primary/60 bg-primary-soft text-primary-soft-ink hover:bg-primary-soft" data-pop="pop-year" aria-expanded="false">Ano: 2019–2022<i data-lucide="chevron-down"></i></button>
+				<div id="pop-year" hidden class="absolute left-0 top-12 z-30 w-72 panel shadow-pop p-4">
+					<p class="text-sm font-medium mb-3">Ano de fabricação</p>
+					<div class="grid grid-cols-2 gap-2">
+						<div><label class="field-label" for="y1">De</label><input id="y1" class="input h-10 num" value="2019" inputmode="numeric" /></div>
+						<div><label class="field-label" for="y2">Até</label><input id="y2" class="input h-10 num" value="2022" inputmode="numeric" /></div>
+					</div>
+				</div>
+			</div>
+			<div class="relative">
+				<button type="button" class="btn btn-outline" data-pop="pop-km" aria-expanded="false">Quilometragem<i data-lucide="chevron-down"></i></button>
+				<div id="pop-km" hidden class="absolute left-0 top-12 z-30 w-72 panel shadow-pop p-4">
+					<label class="field-label" for="km">Até quantos km</label>
+					<div class="relative"><input id="km" class="input h-10 pr-10 num" placeholder="Ex.: 50.000…" inputmode="numeric" /><span class="absolute right-3 top-1/2 -translate-y-1/2 text-sm text-ink-subtle">km</span></div>
+					<div class="mt-3 flex flex-wrap gap-1.5">
+						<button type="button" class="h-7 px-2.5 rounded-md bg-muted text-xs text-ink-muted hover:bg-muted-strong num">20 mil</button>
+						<button type="button" class="h-7 px-2.5 rounded-md bg-muted text-xs text-ink-muted hover:bg-muted-strong num">50 mil</button>
+						<button type="button" class="h-7 px-2.5 rounded-md bg-muted text-xs text-ink-muted hover:bg-muted-strong num">100 mil</button>
+					</div>
+				</div>
+			</div>
+			<div class="relative">
+				<button type="button" class="btn btn-outline border-primary/60 bg-primary-soft text-primary-soft-ink hover:bg-primary-soft" data-pop="pop-price" aria-expanded="false">Preço: até R$ 250 mil<i data-lucide="chevron-down"></i></button>
+				<div id="pop-price" hidden class="absolute left-0 sm:right-0 sm:left-auto top-12 z-30 w-72 panel shadow-pop p-4">
+					<label class="field-label" for="pmax">Preço máximo</label>
+					<div class="relative"><span class="absolute left-3 top-1/2 -translate-y-1/2 text-sm text-ink-subtle">R$</span><input id="pmax" class="input h-10 pl-10 num" value="250.000" inputmode="numeric" /></div>
+					<div class="mt-3 flex flex-wrap gap-1.5">
+						<button type="button" class="h-7 px-2.5 rounded-md bg-muted text-xs text-ink-muted hover:bg-muted-strong num">R$ 80 mil</button>
+						<button type="button" class="h-7 px-2.5 rounded-md bg-muted text-xs text-ink-muted hover:bg-muted-strong num">R$ 150 mil</button>
+						<button type="button" class="h-7 px-2.5 rounded-md bg-muted text-xs text-ink-muted hover:bg-muted-strong num">R$ 250 mil</button>
+					</div>
+					<div class="mt-4 flex justify-end gap-2"><button type="button" class="btn btn-ghost h-9">Limpar</button><button type="button" class="btn btn-primary h-9">Aplicar</button></div>
+				</div>
+			</div>
+		</div>
+		<button type="submit" class="btn btn-primary w-full sm:w-auto sm:ml-auto"><i data-lucide="search"></i>Filtrar</button>
+	</form>
+
+	<!-- Resumo + chips -->
+	<div class="mt-6 pt-5 border-t border-line flex flex-wrap items-center gap-2">
+		<p class="text-sm text-ink-subtle num mr-2" aria-live="polite"><span class="font-medium text-ink">14</span> veículos encontrados</p>
+		<span class="chip">Ano: 2019–2022<button aria-label="Remover filtro Ano: 2019–2022"><i data-lucide="x"></i></button></span>
+		<span class="chip">Preço: até R$ 250.000<button aria-label="Remover filtro Preço"><i data-lucide="x"></i></button></span>
+		<button type="button" class="h-8 px-2 rounded-md text-[13px] font-medium text-link hover:bg-muted">Limpar filtros</button>
+	</div>
+
+	<ul id="grid" class="mt-5 grid gap-4 grid-cols-1 min-[480px]:grid-cols-2 md:grid-cols-3 lg:grid-cols-4"></ul>
+
+	<!-- Paginação numerada -->
+	<nav class="mt-10 flex flex-col-reverse sm:flex-row items-center justify-between gap-4" aria-label="Paginação">
+		<p class="text-sm text-ink-subtle num">Página 1 de 2</p>
+		<div class="flex items-center gap-1">
+			<button class="btn btn-ghost" disabled><i data-lucide="chevron-left"></i>Anterior</button>
+			<button class="btn btn-icon h-10 rounded-lg bg-surface border border-line-strong text-ink num" aria-current="page">1</button>
+			<button class="btn btn-ghost btn-icon num">2</button>
+			<button class="btn btn-ghost">Próxima<i data-lucide="chevron-right"></i></button>
+		</div>
+	</nav>
+</main>
+
+<!-- ═══════════════ DETALHES ═══════════════ -->
+<main id="screen-details" data-screen-panel hidden class="max-w-[1200px] mx-auto px-4 lg:px-6 pt-6 pb-16">
+	<nav aria-label="Trilha" class="flex items-center gap-1.5 text-sm text-ink-subtle">
+		<a href="#" data-go="catalog" class="inline-flex items-center gap-1.5 -ml-2 h-9 px-2 rounded-md hover:bg-muted hover:text-ink"><i data-lucide="arrow-left" class="size-4"></i>Catálogo</a>
+		<i data-lucide="chevron-right" class="size-3.5"></i>
+		<span class="text-ink" id="d-crumb">Toyota Camry</span>
+	</nav>
+
+	<div class="mt-4 grid gap-6 lg:gap-10 lg:grid-cols-[minmax(0,1.55fr)_minmax(0,1fr)] items-start">
+		<div class="rounded-2xl overflow-hidden bg-placeholder border border-line aspect-[4/3]">
+			<img id="d-img" class="size-full object-cover" alt="" />
+		</div>
+
+		<section class="lg:sticky lg:top-20">
+			<div class="flex flex-wrap gap-1.5">
+				<span class="badge num" id="d-year-badge">2022</span>
+				<span class="badge" id="d-fuel-badge">Híbrido</span>
+			</div>
+			<h1 class="mt-3 text-[30px] md:text-[36px] font-semibold tracking-[-0.025em] leading-[1.1]" id="d-title">Toyota Camry</h1>
+			<p class="mt-1.5 text-base text-ink-subtle" id="d-version">XSE 2.5 Hybrid</p>
+			<p class="mt-6 text-[34px] md:text-[40px] font-semibold tracking-[-0.02em] leading-none num" id="d-price">R$ 189.900,00</p>
+
+			<dl class="mt-8 grid grid-cols-2 gap-px rounded-xl overflow-hidden border border-line bg-line">
+				<div class="bg-surface p-4"><dt class="flex items-center gap-1.5 text-[13px] font-medium text-ink-subtle"><i data-lucide="calendar" class="size-4"></i>Ano</dt><dd class="mt-1 text-[17px] font-semibold num" id="d-year">2022</dd></div>
+				<div class="bg-surface p-4"><dt class="flex items-center gap-1.5 text-[13px] font-medium text-ink-subtle"><i data-lucide="gauge" class="size-4"></i>Quilometragem</dt><dd class="mt-1 text-[17px] font-semibold num" id="d-km">32.000 km</dd></div>
+				<div class="bg-surface p-4"><dt class="flex items-center gap-1.5 text-[13px] font-medium text-ink-subtle"><i data-lucide="fuel" class="size-4"></i>Combustível</dt><dd class="mt-1 text-[17px] font-semibold" id="d-fuel">Híbrido</dd></div>
+				<div class="bg-surface p-4"><dt class="flex items-center gap-1.5 text-[13px] font-medium text-ink-subtle"><i data-lucide="cog" class="size-4"></i>Câmbio</dt><dd class="mt-1 text-[17px] font-semibold" id="d-trans">Automático</dd></div>
+			</dl>
+
+			<p class="mt-5 text-[13px] text-ink-subtle num">Cadastrado em 07/11/2026 · atualizado em 07/11/2026</p>
+		</section>
+	</div>
+</main>
+
+<!-- ═══════════════ LOGIN ═══════════════ -->
+<main id="screen-login" data-screen-panel hidden class="min-h-[calc(100vh-3rem)] grid lg:grid-cols-[1.1fr_1fr]">
+	<div class="relative hidden lg:block overflow-hidden bg-[#0f1011]">
+		<img src="https://images.unsplash.com/photo-1503376780353-7e6692767b70?w=1400&q=75&auto=format" alt="" class="absolute inset-0 size-full object-cover opacity-85" />
+		<div class="absolute inset-x-0 bottom-0 h-2/3 bg-gradient-to-t from-black/85 via-black/40 to-transparent"></div>
+		<div class="absolute left-10 top-8 flex items-center gap-2.5 text-white font-semibold">
+			<span class="grid place-items-center size-8 rounded-lg bg-white text-[#0f1011]"><i data-lucide="car-front" class="size-[18px]"></i></span>Catálogo de veículos
+		</div>
+		<div class="absolute left-10 right-10 bottom-10 text-white">
+			<p class="text-[32px] font-semibold tracking-[-0.02em] leading-tight max-w-md">Todo o estoque em um só lugar.</p>
+			<p class="mt-2 text-[15px] text-white/75 max-w-md">Consulte, filtre e cadastre veículos com a equipe.</p>
+		</div>
+	</div>
+
+	<div class="flex items-center justify-center px-4 py-12">
+		<div class="w-full max-w-[380px]">
+			<div class="lg:hidden flex items-center gap-2.5 font-semibold mb-10">
+				<span class="grid place-items-center size-8 rounded-lg bg-ink text-canvas"><i data-lucide="car-front" class="size-[18px]"></i></span>Catálogo de veículos
+			</div>
+			<h1 class="text-[28px] font-semibold tracking-[-0.02em]">Entrar</h1>
+			<p class="mt-1.5 text-sm text-ink-subtle">Use o e-mail e a senha fornecidos pelo administrador.</p>
+
+			<form class="mt-8 space-y-4" onsubmit="return false" novalidate>
+				<p role="alert" class="flex items-start gap-2 rounded-lg border border-danger/40 bg-danger/8 px-3 py-2.5 text-sm text-danger">
+					<i data-lucide="circle-alert" class="size-4 mt-0.5 shrink-0"></i>E-mail ou senha incorretos.
+				</p>
+				<div>
+					<label class="field-label" for="l-email">E-mail</label>
+					<input id="l-email" type="email" class="input" value="rodrigo@empresa.com.br" autocomplete="username" />
+				</div>
+				<div>
+					<label class="field-label" for="l-pass">Senha</label>
+					<div class="relative">
+						<input id="l-pass" type="password" class="input pr-11" value="segredo123" autocomplete="current-password" />
+						<button type="button" id="toggle-pass" class="absolute right-1.5 top-1/2 -translate-y-1/2 grid place-items-center size-8 rounded-md text-ink-subtle hover:text-ink hover:bg-muted" aria-label="Mostrar senha"><i data-lucide="eye" class="size-4"></i></button>
+					</div>
+				</div>
+				<button class="btn btn-primary w-full h-11 mt-2">Entrar</button>
+			</form>
+			<a href="#" data-go="catalog" class="mt-6 inline-flex items-center gap-1.5 text-sm text-link hover:underline underline-offset-4"><i data-lucide="arrow-left" class="size-4"></i>Voltar ao catálogo</a>
+		</div>
+	</div>
+</main>
+
+<!-- ═══════════════ CADASTRO ═══════════════ -->
+<main id="screen-form" data-screen-panel hidden class="max-w-[1200px] mx-auto px-4 lg:px-6 pt-6 pb-28">
+	<nav aria-label="Trilha" class="flex items-center gap-1.5 text-sm text-ink-subtle">
+		<a href="#" data-go="catalog" class="inline-flex items-center gap-1.5 -ml-2 h-9 px-2 rounded-md hover:bg-muted hover:text-ink"><i data-lucide="arrow-left" class="size-4"></i>Catálogo</a>
+		<i data-lucide="chevron-right" class="size-3.5"></i><span class="text-ink">Novo veículo</span>
+	</nav>
+	<h1 class="mt-3 text-[24px] md:text-[30px] font-semibold tracking-[-0.02em]">Novo veículo</h1>
+	<p class="mt-1 text-sm text-ink-subtle">Os campos marcados como opcionais podem ficar em branco.</p>
+
+	<div class="mt-8 grid gap-8 lg:grid-cols-[minmax(0,1fr)_340px] items-start">
+		<form id="car-form" class="space-y-6" onsubmit="return false" novalidate>
+			<section class="panel p-5 md:p-6">
+				<h2 class="text-base font-semibold">Identificação</h2>
+				<div class="mt-4 grid gap-4 sm:grid-cols-2">
+					<div><label class="field-label" for="c-brand">Marca</label><input id="c-brand" data-bind="brand" class="input" value="Fiat" /></div>
+					<div><label class="field-label" for="c-model">Modelo</label><input id="c-model" data-bind="model" class="input" value="500" /></div>
+					<div class="sm:col-span-2"><label class="field-label" for="c-version">Versão <span class="font-normal">(opcional)</span></label><input id="c-version" data-bind="version" class="input" value="Dolcevita 1.0" /></div>
+				</div>
+			</section>
+
+			<section class="panel p-5 md:p-6">
+				<h2 class="text-base font-semibold">Especificações</h2>
+				<div class="mt-4 grid gap-4 sm:grid-cols-2">
+					<div><label class="field-label" for="c-year">Ano</label><input id="c-year" data-bind="year" class="input num" inputmode="numeric" value="2021" /></div>
+					<div>
+						<label class="field-label" for="c-km">Quilometragem</label>
+						<div class="relative"><input id="c-km" data-bind="km" class="input pr-11 num" inputmode="numeric" value="28.000" /><span class="absolute right-3 top-1/2 -translate-y-1/2 text-sm text-ink-subtle">km</span></div>
+					</div>
+					<fieldset class="sm:col-span-2">
+						<legend class="field-label">Combustível</legend>
+						<div class="seg flex-wrap" id="fuel-group">
+							<button type="button" aria-pressed="true">Flex</button><button type="button" aria-pressed="false">Gasolina</button><button type="button" aria-pressed="false">Etanol</button><button type="button" aria-pressed="false">Diesel</button><button type="button" aria-pressed="false">Elétrico</button><button type="button" aria-pressed="false">Híbrido</button>
+						</div>
+					</fieldset>
+					<fieldset class="sm:col-span-2">
+						<legend class="field-label">Câmbio</legend>
+						<div class="seg" id="trans-group">
+							<button type="button" aria-pressed="true">Manual</button><button type="button" aria-pressed="false">Automático</button><button type="button" aria-pressed="false">CVT</button>
+						</div>
+					</fieldset>
+				</div>
+			</section>
+
+			<section class="panel p-5 md:p-6">
+				<h2 class="text-base font-semibold">Preço e foto</h2>
+				<div class="mt-4 grid gap-4">
+					<div class="sm:max-w-[50%]">
+						<label class="field-label" for="c-price">Preço</label>
+						<div class="relative"><span class="absolute left-3 top-1/2 -translate-y-1/2 text-ink-subtle">R$</span><input id="c-price" data-bind="price" class="input pl-11 num text-[17px] font-semibold" inputmode="numeric" value="79.900" /></div>
+					</div>
+					<div>
+						<label class="field-label" for="c-img">Endereço da foto <span class="font-normal">(opcional)</span></label>
+						<input id="c-img" data-bind="img" class="input" type="url" value="https://images.unsplash.com/photo-1549317661-bd32c8ce0db2?w=800&q=70&auto=format" />
+						<p class="mt-1.5 text-[13px] text-danger hidden" id="img-error">Use um endereço http:// ou https:// válido.</p>
+					</div>
+				</div>
+			</section>
+		</form>
+
+		<aside class="lg:sticky lg:top-20">
+			<h2 class="text-sm font-medium text-ink-subtle mb-3">Como vai aparecer no catálogo</h2>
+			<div id="preview" class="max-w-[300px]"></div>
+		</aside>
+	</div>
+
+	<!-- Ações fixas -->
+	<div class="fixed inset-x-0 bottom-0 z-20 border-t border-line bg-surface/90 backdrop-blur">
+		<div class="max-w-[1200px] mx-auto px-4 lg:px-6 h-[68px] flex items-center justify-end gap-2">
+			<button class="btn btn-ghost" data-go="catalog">Cancelar</button>
+			<button class="btn btn-primary px-5"><i data-lucide="check"></i>Cadastrar veículo</button>
+		</div>
+	</div>
+</main>
+
+<!-- ═══════════════ O QUE MUDA ═══════════════ -->
+<main id="screen-notes" data-screen-panel hidden class="max-w-[760px] mx-auto px-4 lg:px-6 pt-10 pb-20">
+	<h1 class="text-[28px] font-semibold tracking-[-0.02em]">O que muda em relação ao visual atual</h1>
+	<p class="mt-2 text-ink-subtle">Refinamento ousado: mesma paleta, mesmo acento lavanda, mesmos dois temas e pilha de fontes do sistema. Fotos e dados de veículos são ilustrativos.</p>
+
+	<h2 class="mt-10 text-lg font-semibold">Mantido</h2>
+	<ul class="mt-3 space-y-2 text-[15px] text-ink-muted list-disc pl-5">
+		<li>Cores, contraste AA e tema claro/escuro com preferência do sistema.</li>
+		<li>Todos os fluxos, textos de erro, rótulos e regras de validação atuais.</li>
+		<li>Card compacto horizontal abaixo de 480 px.</li>
+	</ul>
+	<p class="mt-3 text-[15px] text-ink-muted">Correção de acessibilidade: placeholders passam de <code>ink-tertiary</code> (3,25:1) para <code>ink-subtle</code> (5,9:1).</p>
+
+	<h2 class="mt-10 text-lg font-semibold">Visual (novos elementos do sistema)</h2>
+	<ul class="mt-3 space-y-2 text-[15px] text-ink-muted list-disc pl-5">
+		<li><b class="text-ink">Sombra suave de elevação</b> em card no hover, busca inteligente e popovers. Hoje o DESIGN.md proíbe sombras.</li>
+		<li><b class="text-ink">Lavanda suave</b> (11–16% de opacidade) em filtro ativo, chips e avatar. Hoje a lavanda só aparece em botão, link e foco.</li>
+		<li><b class="text-ink">Ícones Lucide</b> nos metadados, ações e botões.</li>
+		<li>Raios maiores na busca (16 px) e na foto de detalhes; títulos maiores (30–40 px) em detalhes.</li>
+		<li>Card com foto 4:3, zoom leve na foto e elevação no hover; mostra combustível e câmbio, que hoje só aparecem nos detalhes.</li>
+	</ul>
+
+	<h2 class="mt-10 text-lg font-semibold">Comportamento (para você aprovar)</h2>
+	<ul class="mt-3 space-y-2 text-[15px] text-ink-muted list-disc pl-5">
+		<li>Busca inteligente vira o campo principal, com sugestões clicáveis e atalho <kbd class="px-1 rounded border border-line text-xs">/</kbd> para focar.</li>
+		<li>Filtros de faixa (ano, km, preço) em popovers com atalhos de valor; o botão mostra o valor ativo.</li>
+		<li>Paginação numerada, além de Anterior/Próxima.</li>
+		<li>Tema e “Sair” passam para o menu do usuário; para visitante, um botão de tema com ícone.</li>
+		<li>Login em tela dividida com foto (só a partir de 1024 px) e botão de mostrar senha.</li>
+		<li>Cadastro em seções, com pré-visualização do card ao vivo e ações fixas no rodapé.</li>
+		<li><b class="text-ink">Combustível e câmbio viram opções fixas</b>; hoje aceitam texto livre com sugestões.</li>
+	</ul>
+
+	<h2 class="mt-10 text-lg font-semibold">Técnico</h2>
+	<ul class="mt-3 space-y-2 text-[15px] text-ink-muted list-disc pl-5">
+		<li>Tailwind CSS v4 + shadcn/ui (Button, Input, Badge, Popover, DropdownMenu, ToggleGroup, sobre Radix) + lucide-react.</li>
+		<li>Tokens atuais mapeados para as variáveis do shadcn; CSS Modules removidos tela a tela.</li>
+		<li>Exige spec própria (005) e atualização do DESIGN.md antes de implementar.</li>
+	</ul>
+</main>
+
+<script>
+const IMG = (id, w = 800) => `https://images.unsplash.com/${id}?w=${w}&q=70&auto=format`;
+const cars = [
+	{ brand: "Toyota", model: "Camry", version: "XSE 2.5 Hybrid", year: 2022, price: 189900, km: 32000, fuel: "Híbrido", trans: "Automático", img: "photo-1621007947382-bb3c3994e3fb" },
+	{ brand: "BMW", model: "M4", version: "Competition 3.0 Biturbo", year: 2021, price: 649000, km: 18500, fuel: "Gasolina", trans: "Automático", img: "photo-1580273916550-e323be2ae537", pos: "center 62%" },
+	{ brand: "Fiat", model: "500", version: "Dolcevita 1.0", year: 2021, price: 79900, km: 28000, fuel: "Flex", trans: "Manual", img: "photo-1549317661-bd32c8ce0db2" },
+	{ brand: "Ford", model: "Mustang", version: "GT 5.0 V8", year: 2020, price: 389000, km: 41200, fuel: "Gasolina", trans: "Automático", img: "photo-1494976388531-d1058494cdd8" },
+	{ brand: "Porsche", model: "Panamera", version: "4 2.9 V6", year: 2021, price: 729000, km: 22000, fuel: "Gasolina", trans: "Automático", img: "photo-1503376780353-7e6692767b70" },
+	{ brand: "Chevrolet", model: "Camaro", version: "SS 6.2 V8", year: 2019, price: 359900, km: 37800, fuel: "Gasolina", trans: "Automático", img: "photo-1552519507-da3b142c6e3d" },
+	{ brand: "Audi", model: "RS6 Avant", version: null, year: 2020, price: 699000, km: 45300, fuel: "Gasolina", trans: "Automático", img: "photo-1606664515524-ed2f786a0bd6", pos: "center 82%" },
+	{ brand: "Ford", model: "Expedition", version: "Limited 3.5 EcoBoost", year: 2019, price: 289000, km: 52700, fuel: "Gasolina", trans: "Automático", img: "photo-1533473359331-0135ef1b58bf", pos: "center 70%" },
+];
+const brl = new Intl.NumberFormat("pt-BR", { style: "currency", currency: "BRL" });
+const brl0 = new Intl.NumberFormat("pt-BR", { style: "currency", currency: "BRL", maximumFractionDigits: 0 });
+const int = new Intl.NumberFormat("pt-BR");
+const esc = (s) => String(s ?? "").replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+
+function cardHTML(c, i, interactive = true) {
+	const img = c.img ? `<img src="${c.img.startsWith("http") ? esc(c.img) : IMG(c.img)}" alt="Foto do ${esc(c.brand)} ${esc(c.model)} ${esc(c.year)}" style="object-position:${c.pos ?? "center"}" class="size-full object-cover transition-transform duration-500 ease-out-quint group-hover:scale-[1.04]" ${i > 3 ? 'loading="lazy"' : ""} onerror="this.replaceWith(Object.assign(document.createElement('span'),{className:'text-sm text-ink-subtle',textContent:'Sem imagem'}))" />`
+		: `<span class="text-sm text-ink-subtle">Sem imagem</span>`;
+	const meta = [
+		["calendar", c.year], ["gauge", c.km != null && c.km !== "" ? `${int.format(c.km)} km` : null],
+		["fuel", c.fuel], ["cog", c.trans],
+	].filter(([, v]) => v).map(([icon, v]) => `<span class="inline-flex items-center gap-1"><i data-lucide="${icon}" class="size-3.5"></i>${esc(v)}</span>`).join("");
+	return `<li class="group relative list-none min-w-0 flex flex-col max-[479px]:grid max-[479px]:grid-cols-[120px_minmax(0,1fr)] overflow-hidden rounded-xl border border-line bg-surface transition-[transform,box-shadow,border-color] duration-200 ease-out-quint hover:-translate-y-0.5 hover:shadow-lift hover:border-line-strong has-[a:focus-visible]:outline-2 has-[a:focus-visible]:outline-offset-2 has-[a:focus-visible]:outline-ring">
+		<div class="aspect-[4/3] max-[479px]:aspect-auto max-[479px]:h-full overflow-hidden bg-placeholder grid place-items-center">${img}</div>
+		<div class="p-4 max-[479px]:p-3 min-w-0 flex flex-col flex-1">
+			<h2 class="text-base font-semibold leading-snug tracking-[-0.01em] truncate">
+				<a href="#" ${interactive ? `data-car="${i}"` : 'tabindex="-1"'} class="focus:outline-none after:absolute after:inset-0">${esc(c.brand) || "Marca"} ${esc(c.model) || "Modelo"}</a>
+			</h2>
+			<p class="mt-0.5 text-sm text-ink-subtle truncate">${esc(c.version) || "&nbsp;"}</p>
+			<p class="mt-3 max-[479px]:mt-1.5 text-xl max-[479px]:text-[17px] font-semibold tracking-[-0.01em] num">${c.price ? brl0.format(c.price) : "R$ —"}</p>
+			<div class="mt-3 pt-3 max-[479px]:mt-1.5 max-[479px]:pt-0 max-[479px]:border-0 border-t border-line flex flex-wrap gap-x-3 gap-y-1 text-[13px] text-ink-subtle num">${meta}</div>
+		</div>
+	</li>`;
+}
+
+document.getElementById("grid").innerHTML = cars.map((c, i) => cardHTML(c, i)).join("");
+
+/* Navegação entre telas */
+const topbar = document.getElementById("app-topbar");
+function show(screen) {
+	document.querySelectorAll("[data-screen-panel]").forEach((el) => (el.hidden = el.id !== `screen-${screen}`));
+	document.querySelectorAll("[data-screen]").forEach((b) => b.setAttribute("aria-pressed", String(b.dataset.screen === screen)));
+	topbar.hidden = screen === "login";
+	window.scrollTo(0, 0);
+}
+document.addEventListener("click", (e) => {
+	const s = e.target.closest("[data-screen]"); if (s) show(s.dataset.screen);
+	const g = e.target.closest("[data-go]"); if (g) { e.preventDefault(); show(g.dataset.go); }
+	const c = e.target.closest("[data-car]"); if (c) { e.preventDefault(); openCar(cars[+c.dataset.car]); }
+	const t = e.target.closest("[data-theme-set]");
+	if (t) {
+		document.documentElement.dataset.theme = t.dataset.themeSet;
+		document.querySelectorAll("[data-theme-set]").forEach((b) => b.setAttribute("aria-pressed", String(b === t)));
+	}
+	const p = e.target.closest("[data-pop]");
+	document.querySelectorAll("[data-pop]").forEach((btn) => {
+		const panel = document.getElementById(btn.dataset.pop);
+		const open = btn === p ? panel.hidden : false;
+		if (btn === p || !e.target.closest(`#${btn.dataset.pop}`)) { panel.hidden = !open; btn.setAttribute("aria-expanded", String(open)); }
+	});
+	const sg = e.target.closest(".suggest"); if (sg) { const i = document.getElementById("smart"); i.value = sg.textContent; i.focus(); }
+	const seg = e.target.closest("#fuel-group button, #trans-group button, #user-menu .seg button");
+	if (seg) { seg.parentElement.querySelectorAll("button").forEach((b) => b.setAttribute("aria-pressed", String(b === seg))); renderPreview(); }
+});
+document.addEventListener("keydown", (e) => {
+	if (e.key === "/" && !/INPUT|TEXTAREA/.test(document.activeElement.tagName)) { e.preventDefault(); show("catalog"); document.getElementById("smart").focus(); }
+	if (e.key === "Escape") document.querySelectorAll("[data-pop]").forEach((b) => { document.getElementById(b.dataset.pop).hidden = true; b.setAttribute("aria-expanded", "false"); });
+});
+document.getElementById("smart-form").addEventListener("submit", (e) => e.preventDefault());
+
+function openCar(c) {
+	const set = (id, v) => (document.getElementById(id).textContent = v);
+	set("d-crumb", `${c.brand} ${c.model}`); set("d-title", `${c.brand} ${c.model}`);
+	set("d-version", c.version ?? ""); set("d-price", brl.format(c.price));
+	set("d-year", c.year); set("d-year-badge", c.year); set("d-km", `${int.format(c.km)} km`);
+	set("d-fuel", c.fuel); set("d-fuel-badge", c.fuel); set("d-trans", c.trans);
+	const img = document.getElementById("d-img"); img.src = IMG(c.img, 1400); img.style.objectPosition = c.pos ?? "center"; img.alt = `Foto do ${c.brand} ${c.model} ${c.year}`;
+	show("details");
+}
+openCar(cars[0]);
+{
+	/* Abre direto uma tela/tema: mockup.html#details/dark */
+	const [screen, theme] = location.hash.slice(1).split("/");
+	if (theme) document.querySelector(`[data-theme-set="${theme}"]`)?.click();
+	show(document.getElementById(`screen-${screen}`) ? screen : "catalog");
+}
+
+/* Pré-visualização ao vivo do cadastro */
+const digits = (v) => v.replace(/\D/g, "");
+function renderPreview() {
+	const v = (k) => document.querySelector(`[data-bind="${k}"]`).value.trim();
+	const pressed = (id) => document.querySelector(`#${id} [aria-pressed="true"]`)?.textContent;
+	const url = v("img"); const okUrl = url === "" || /^https?:\/\//.test(url);
+	document.getElementById("img-error").classList.toggle("hidden", okUrl);
+	document.getElementById("preview").innerHTML = `<ul>${cardHTML({
+		brand: v("brand"), model: v("model"), version: v("version"), year: digits(v("year")),
+		price: +digits(v("price")) || 0, km: digits(v("km")) === "" ? null : +digits(v("km")),
+		fuel: pressed("fuel-group"), trans: pressed("trans-group"), img: okUrl && url ? url : null,
+	}, 0, false)}</ul>`;
+	lucide.createIcons();
+}
+document.querySelectorAll("[data-bind]").forEach((el) => el.addEventListener("input", (e) => {
+	if (["price", "km"].includes(el.dataset.bind)) { const d = digits(el.value); el.value = d ? int.format(+d) : ""; }
+	renderPreview();
+}));
+renderPreview();
+
+document.getElementById("toggle-pass").addEventListener("click", (e) => {
+	const i = document.getElementById("l-pass"); const show = i.type === "password";
+	i.type = show ? "text" : "password"; e.currentTarget.setAttribute("aria-label", show ? "Ocultar senha" : "Mostrar senha");
+	e.currentTarget.innerHTML = `<i data-lucide="${show ? "eye-off" : "eye"}" class="size-4"></i>`; lucide.createIcons();
+});
+lucide.createIcons();
+</script>
+</body>
+</html>

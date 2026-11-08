@@ -1,9 +1,12 @@
 import type { ReactNode } from "react";
-import styles from "./States.module.css";
+import { cn } from "../lib/cn.js";
+import { Button } from "./ui/button.js";
 
-export function Loading({ label = "Carregando..." }: { label?: string }) {
+const BOX = "rounded-xl border bg-surface px-4 py-8 text-center text-sm text-ink-subtle";
+
+export function Loading({ label = "Carregando…" }: { label?: string }) {
 	return (
-		<div className={styles.box} role="status" aria-busy="true">
+		<div className={cn(BOX, "border-line")} role="status" aria-busy="true">
 			{label}
 		</div>
 	);
@@ -21,10 +24,16 @@ export function Message({
 	alert?: boolean;
 }) {
 	return (
-		<div className={styles.box} {...(alert ? { role: "alert" } : {})}>
-			<h2 className={styles.title}>{title}</h2>
-			{children ? <p>{children}</p> : null}
-			{action ? <div className={styles.action}>{action}</div> : null}
+		<div
+			className={cn(BOX, alert ? "border-danger" : "border-line")}
+			data-state={alert ? "danger" : undefined}
+			{...(alert ? { role: "alert" } : {})}
+		>
+			<h2 className={cn("mb-2 text-xl font-semibold leading-snug tracking-tight", alert ? "text-danger" : "text-ink")}>
+				{title}
+			</h2>
+			{children ? <p className="mx-auto max-w-[48ch] text-pretty">{children}</p> : null}
+			{action ? <div className="mt-4 flex justify-center">{action}</div> : null}
 		</div>
 	);
 }
@@ -34,13 +43,9 @@ export function ErrorMessage({ onRetry }: { onRetry: () => void }) {
 		<Message
 			alert
 			title="Não foi possível carregar os dados"
-			action={
-				<button type="button" className="button" onClick={onRetry}>
-					Tentar novamente
-				</button>
-			}
+			action={<Button onClick={onRetry}>Tentar novamente</Button>}
 		>
-			Ocorreu um problema ao se comunicar com o servidor. Tente novamente em instantes.
+			Ocorreu um problema ao se comunicar com o servidor. Verifique sua conexão e tente novamente.
 		</Message>
 	);
 }

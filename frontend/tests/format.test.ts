@@ -1,4 +1,4 @@
-import { formatMileage, formatOptional, formatPrice } from "../src/features/catalog/format.js";
+import { formatMileage, formatOptional, formatPrice, formatPriceWhole } from "../src/features/catalog/format.js";
 
 const norm = (s: string) => s.replace(/ /g, " ");
 
@@ -17,5 +17,12 @@ describe("format", () => {
 	it("formata campos opcionais", () => {
 		expect(formatOptional(null)).toBe("Não informado");
 		expect(formatOptional("Flex")).toBe("Flex");
+	});
+});
+
+describe("formatPriceWhole", () => {
+	it("formata o preço sem centavos", () => {
+		expect(formatPriceWhole("189900.00").replace(/\s/g, " ")).toBe("R$ 189.900");
+		expect(formatPriceWhole("1234.56").replace(/\s/g, " ")).toBe("R$ 1.235");
 	});
 });

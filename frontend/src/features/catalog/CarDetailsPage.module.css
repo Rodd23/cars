@@ -1,6 +1,0 @@
-.article { max-width: 640px; background: #fff; border: 1px solid #d1d5db; border-radius: 8px; overflow: hidden; }
-.title { margin: 1rem 1rem 0; }
-.list { display: grid; grid-template-columns: max-content 1fr; gap: 0.4rem 1rem; padding: 1rem; margin: 0; }
-.list dt { font-weight: 600; }
-.list dd { margin: 0; overflow-wrap: anywhere; }
-.back { font-weight: 600; }

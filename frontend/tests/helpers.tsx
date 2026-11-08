@@ -34,8 +34,27 @@ export function json(body: unknown, status = 200): Response {
 
 export type FetchMock = ReturnType<typeof vi.fn<(url: string, init?: RequestInit) => Promise<Response>>>;
 
-export function mockFetch(handler: (url: URL) => Promise<Response> | Response): FetchMock {
+/** Resposta padrão de /auth/me nos testes de catálogo: sem sessão. */
+export const anonymous = () => json({ error: "Unauthorized" }, 401);
+
+/**
+ * Simula a API do catálogo. Chamadas a /auth/* vão para `auth` (padrão: sem sessão)
+ * e não entram na contagem do mock retornado.
+ */
+export function mockFetch(
+	handler: (url: URL) => Promise<Response> | Response,
+	auth: (url: URL, init?: RequestInit) => Promise<Response> | Response = anonymous,
+): FetchMock {
 	const fn = vi.fn(async (url: string, _init?: RequestInit) => handler(new URL(url)));
+	vi.stubGlobal("fetch", (url: string, init?: RequestInit) =>
+		new URL(url).pathname.startsWith("/auth/") ? auth(new URL(url), init) : fn(url, init),
+	);
+	return fn;
+}
+
+/** Simula a API inteira (inclui /auth/*) e registra todas as chamadas. */
+export function mockApi(handler: (url: URL, init?: RequestInit) => Promise<Response> | Response): FetchMock {
+	const fn = vi.fn(async (url: string, init?: RequestInit) => handler(new URL(url), init));
 	vi.stubGlobal("fetch", fn);
 	return fn;
 }
