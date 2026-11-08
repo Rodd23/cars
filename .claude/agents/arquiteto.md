@@ -1,6 +1,6 @@
 ---
 name: arquiteto
-description: Decisões de arquitetura e tecnologia, especificações (docs/specs), planos de implementação, revisão de mudanças sensíveis (schema, autenticação, busca OpenAI, segurança) e depuração difícil. Somente leitura; entrega análise e plano.
+description: Use quando a sessão principal não estiver em Opus. Decisões de arquitetura e tecnologia, especificações (docs/specs), planos de implementação, revisão de mudanças sensíveis (schema, autenticação, busca OpenAI, segurança) e depuração difícil. Somente leitura; entrega análise e plano.
 tools: Read, Grep, Glob, Bash
 model: opus
 effort: high

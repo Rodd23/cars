@@ -8,6 +8,13 @@
       "when": 1776452931469,
       "tag": "0000_noisy_rhino",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1794095470492,
+      "tag": "0001_smart_red_shift",
+      "breakpoints": true
     }
   ]
 }

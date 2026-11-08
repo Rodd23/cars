@@ -5,15 +5,18 @@
   "scripts": {
     "dev": "tsx watch src/server.ts",
     "build": "tsc -p tsconfig.json",
+    "user:create": "tsx src/scripts/user.ts",
     "typecheck": "tsc -p tsconfig.json --noEmit",
-    "test": "node --import tsx --test tests/catalog.test.ts tests/cors.test.ts"
+    "test": "node --import tsx --test tests/catalog.test.ts tests/ai-search.test.ts tests/cors.test.ts tests/auth.test.ts tests/cars-create.test.ts tests/password.test.ts tests/user-cli.test.ts"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "description": "",
   "dependencies": {
+    "@fastify/cookie": "^11.1.5",
     "@fastify/cors": "^11.2.0",
+    "@fastify/rate-limit": "^11.2.2",
     "dotenv": "^17.4.2",
     "drizzle-orm": "^0.45.2",
     "fastify": "^5.8.5",

@@ -63,3 +63,14 @@ test("unlisted origin does not receive CORS headers", async (t) => {
 	assert.equal(response.headers["access-control-allow-origin"], undefined);
 	assert.deepEqual(response.json(), { status: "ok" });
 });
+
+test("allowed origin may send credentials (cookies)", async (t) => {
+	const app = await buildTestApp(["http://localhost:5173"]);
+	t.after(() => app.close());
+
+	const response = await app.inject({
+		method: "GET", url: "/health",
+		headers: { origin: "http://localhost:5173" },
+	});
+	assert.equal(response.headers["access-control-allow-credentials"], "true");
+});

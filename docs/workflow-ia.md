@@ -26,6 +26,17 @@ Troque com `/model` conforme a fase:
 
 Fluxo típico de uma feature: `arquiteto` (ou sessão em Opus) escreve spec e plano → aprovação → `executor` implementa passo a passo → `validador` confere → `documentador` registra.
 
+## Ferramentas de frontend
+
+| Ferramenta | Onde | Uso |
+|---|---|---|
+| `playwright-cli` (`@playwright/cli`, global) | skill em `.claude/skills/playwright-cli/` | Abrir a interface, navegar, tirar snapshot/screenshot e verificar mudanças visuais. Usa o Chrome instalado. |
+| `web-design-guidelines` (Vercel) | `.claude/skills/web-design-guidelines/` | Auditoria de UI (acessibilidade, foco, formulários, layout, copy). Regras fixadas em `guidelines.md`; não buscar a versão remota sem revisão. |
+| `react-best-practices` (Vercel) | `.claude/skills/react-best-practices/` | Regras de performance React. Ignorar as de Next.js/servidor (`server-*`, hidratação); o app é SPA Vite. Leia só as regras pertinentes em `rules/`. |
+| Referência visual Linear | `frontend/design/linear-reference.md` | Base do estilo. A adaptação para o catálogo (tokens, claro/escuro) fica em `frontend/DESIGN.md`. |
+
+Skills de terceiros só entram no projeto depois de lidas; scripts, hooks e buscas remotas exigem revisão explícita. O `taste-skill` foi avaliado e não adotado (foco em sites de marketing e hook de parada que prolonga as tarefas).
+
 ## Economia de tokens
 
 - Uma conversa por tarefa: use `/clear` ao trocar de assunto e `/compact` em conversas longas.

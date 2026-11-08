@@ -1,6 +1,6 @@
 # 001 — Catálogo web interno
 
-Status: contratos e comportamentos aprovados pelo usuário em 29/10/2026, pela mensagem “Aprovo”. Implementação em andamento: backend e interface de consulta implementados (frontend em 07/11/2026); pendências de AC10, AC11 e integração PostgreSQL isolada. Reorganização realizada.
+Status: contratos e comportamentos aprovados pelo usuário em 29/10/2026, pela mensagem “Aprovo”. Implementação em andamento: backend e interface de consulta implementados (frontend em 07/11/2026); pendências de AC11 e integração PostgreSQL isolada. Reorganização realizada.
 
 ## Problema e objetivo
 
@@ -142,7 +142,7 @@ Credenciais PostgreSQL e OpenAI nunca entram no bundle frontend. A URL da API é
 - Organização escolhida: raiz Git em `cars/`, com `backend/` e `frontend/` lado a lado. Reorganização executada sem commits; os caminhos das duas Skills foram corrigidos e validados após aprovação fora do sandbox.
 - Autenticação e acesso compartilhado: fora desta implementação local; obrigatórios como decisão antes de disponibilizar o produto a outros usuários.
 
-Próximo passo: validar AC10, a regressão HTTP dos POST (AC11) e a integração com PostgreSQL isolado, conforme o [plano](plan.md). Não é necessário pedir novamente aprovação dos contratos aqui definidos. A aprovação não inclui reorganização do Git, migrations, chamadas pagas ou deploy.
+Próximo passo: validar a regressão HTTP dos POST (AC11) e a integração com PostgreSQL isolado, conforme o [plano](plan.md). Não é necessário pedir novamente aprovação dos contratos aqui definidos. A aprovação não inclui reorganização do Git, migrations, chamadas pagas ou deploy.
 
 ## Evidências da entrega
 
@@ -161,6 +161,6 @@ Interface de consulta implementada em `frontend/` em 07/11/2026, com a stack des
 - AC06: filtros, página, detalhes e Voltar validados com testes de navegação em memory router. Sem teste E2E em navegador real.
 - AC07: carregamento, erro, vazio, imagem quebrada e 404 validados por testes de interface.
 - AC08: frontend só faz GET, verificado nos testes.
-- AC10: não validado. O CSS foi escrito para teclado e larguras de 360, 768 e 1280 px (grid `auto-fill` com `minmax(240px, 1fr)`, `aspect-ratio`, foco visível, labels), mas falta verificação manual ou Playwright.
+- AC10: validado em 07/11/2026 com Chrome headless (playwright-core fora do projeto, API simulada com dados fictícios, sem banco nem OpenAI): 29 verificações, nenhuma falha. Sem rolagem horizontal em `/cars`, página fora do intervalo, sem resultados e detalhes nas larguras 360, 768 e 1280 px; foco visível nos controles; ordem de Tab Marca → Modelo → Versão → Buscar → Limpar → cards; filtro com Enter, abertura do card, "Voltar ao catálogo" preservando o filtro e "Próxima" operados só por teclado; voltar do navegador funciona; um `h1` por página, inputs rotulados, imagens e fallbacks com texto alternativo, `lang=pt-BR`. Não houve teste com leitor de tela; o script não foi versionado (Playwright continua fora das dependências).
 
-A especificação inteira permanece em andamento, não concluída. Pendências: AC10, AC11 e integração PostgreSQL isolada.
+A especificação inteira permanece em andamento, não concluída. Pendências: AC11 e integração PostgreSQL isolada.

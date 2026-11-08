@@ -1,6 +1,6 @@
 ---
 name: explorador
-description: Localiza código, arquivos e referências no repositório e responde onde/como algo está implementado. Somente leitura. Use para buscas e perguntas factuais sobre o código antes de editar.
+description: Use proativamente para buscas. Localiza código, arquivos e referências no repositório e responde onde/como algo está implementado. Somente leitura. Use para buscas e perguntas factuais sobre o código antes de editar.
 tools: Read, Grep, Glob
 model: haiku
 effort: low

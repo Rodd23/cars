@@ -111,3 +111,59 @@ test("SQL is parameterized, combines filters and escapes literal wildcards/backs
 	assert.doesNotMatch(compiled.sql, /50%|a_b|x\\y/);
 	assert.equal(buildCatalogWhere(catalogQuerySchema.parse({})), undefined);
 });
+
+const compile = (query: Record<string, string>) => {
+	const where = buildCatalogWhere(catalogQuerySchema.parse(query));
+	assert.ok(where);
+	return new PgDialect().sqlToQuery(where);
+};
+
+test("AC1: year, mileage and price ranges are accepted with inclusive bounds and passed to the repository", async (t) => {
+	const nextYear = new Date().getFullYear() + 1;
+	const received: unknown[] = [];
+	const app = await buildTestApp(repository({ listCars: async (query) => {
+		received.push(query);
+		return { items: [], totalItems: 0 };
+	} }));
+	t.after(() => app.close());
+	const response = await app.inject({ method: "GET", url:
+		`/cars?yearMin=1886&yearMax=${nextYear}&mileageMin=0&mileageMax=2000000&priceMin=1&priceMax=9999999999` });
+	assert.equal(response.statusCode, 200);
+	const exact = await app.inject({ method: "GET", url: "/cars?yearMin=2020&yearMax=2020&mileageMin=5&mileageMax=5" });
+	assert.equal(exact.statusCode, 200);
+	assert.deepEqual(received, [
+		{ page: 1, pageSize: 12, yearMin: 1886, yearMax: nextYear, mileageMin: 0, mileageMax: 2000000, priceMin: 1, priceMax: 9999999999 },
+		{ page: 1, pageSize: 12, yearMin: 2020, yearMax: 2020, mileageMin: 5, mileageMax: 5 },
+	]);
+});
+
+test("AC1: ranges reject min > max, out of range, non-integer and unknown keys with 400 before DB", async (t) => {
+	const nextYear = new Date().getFullYear() + 1;
+	const app = await buildTestApp(repository({ listCars: async () => { throw new Error("Must not query"); } }));
+	t.after(() => app.close());
+	for (const query of ["yearMin=2021&yearMax=2020", "mileageMin=10&mileageMax=9", "priceMin=10&priceMax=9",
+		"yearMin=1885", `yearMax=${nextYear + 1}`, "mileageMax=2000001", "mileageMin=-1", "priceMin=0",
+		"priceMax=10000000000", "yearMin=2020.5", "mileageMax=1e3", "priceMax=abc", "yearMin=", "yearMin=1&yearMin=2",
+		"yearFrom=2020"]) {
+		const response = await app.inject({ method: "GET", url: `/cars?${query}` });
+		assert.equal(response.statusCode, 400, query);
+		assert.equal(response.json().error.code, "INVALID_REQUEST");
+	}
+});
+
+test("AC1/AC2: range SQL is parameterized with gte/lte; mileage filter uses comparison (NULL excluded)", () => {
+	const compiled = compile({ yearMin: "2018", yearMax: "2020", mileageMin: "0", mileageMax: "50000", priceMin: "30000", priceMax: "90000" });
+	assert.match(compiled.sql, /"year" >= \$1/);
+	assert.match(compiled.sql, /"year" <= \$2/);
+	assert.match(compiled.sql, /"mileage" >= \$3/);
+	assert.match(compiled.sql, /"mileage" <= \$4/);
+	assert.match(compiled.sql, /"price" >= \$5/);
+	assert.match(compiled.sql, /"price" <= \$6/);
+	assert.doesNotMatch(compiled.sql, /is null/i);
+	assert.deepEqual(compiled.params, [2018, 2020, 0, 50000, "30000", "90000"]);
+});
+
+test("AC10: wildcards coming from the AI are literals alongside ranges", () => {
+	const compiled = compile({ brand: "%", model: "_", mileageMax: "10" });
+	assert.deepEqual(compiled.params, ["%\\%%", "%\\_%", 10]);
+});

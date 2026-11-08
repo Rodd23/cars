@@ -22,5 +22,5 @@ export const corsOriginsSchema = z
 	.pipe(z.array(originSchema));
 
 export function buildCorsOptions(origins: string[]): FastifyCorsOptions {
-	return { origin: [...origins] };
+	return { origin: [...origins], credentials: true };
 }

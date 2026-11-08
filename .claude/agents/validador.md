@@ -1,6 +1,6 @@
 ---
 name: validador
-description: Executa typecheck, testes e build do backend (e do frontend quando existir) e relata o resultado. Use após mudanças de código para validar sem gastar o modelo principal.
+description: Use proativamente após mudanças de código. Executa typecheck, testes e build do backend (e do frontend quando existir) e relata o resultado. Use após mudanças de código para validar sem gastar o modelo principal.
 tools: Bash, Read, Grep
 model: haiku
 effort: low

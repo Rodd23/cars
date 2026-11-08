@@ -1,6 +1,6 @@
 ---
 name: documentador
-description: Atualiza a documentação (READMEs, docs/*.md, evidências em specs) para refletir uma mudança já implementada e descrita na tarefa.
+description: Use proativamente após cada entrega. Atualiza a documentação (READMEs, docs/*.md, evidências em specs) para refletir uma mudança já implementada e descrita na tarefa.
 tools: Read, Edit, Grep, Glob
 model: haiku
 effort: low

@@ -1,6 +1,6 @@
 ---
 name: executor
-description: Implementa mudanças de código bem especificadas (escopo, arquivos e comportamento já definidos), como ajustes pontuais, novos endpoints ou componentes seguindo padrões existentes, e roda os testes relacionados.
+description: Use proativamente para toda implementação com escopo aprovado. Implementa mudanças de código bem especificadas (escopo, arquivos e comportamento já definidos), como ajustes pontuais, novos endpoints ou componentes seguindo padrões existentes, e roda os testes relacionados.
 tools: Read, Edit, Write, Grep, Glob, Bash
 model: sonnet
 effort: medium

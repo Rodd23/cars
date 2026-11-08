@@ -11,6 +11,7 @@ const envSchema = z.object({
 	OPENAI_API_KEY: z.string().min(1),
 	OPENAI_MODEL: z.string().min(1),
 	CORS_ORIGINS: corsOriginsSchema.default([]),
+	SESSION_TTL_HOURS: z.coerce.number().int().min(1).max(720).default(8),
 });
 
 const parseEnv = envSchema.safeParse(process.env);
